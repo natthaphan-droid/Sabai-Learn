@@ -1,96 +1,20 @@
-import { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Input } from "../components/ui/Input";
-import { Button } from "../components/ui/Button";
-import { Search, Filter, FileText, Download, Eye, FileDown } from "lucide-react";
+import { useRef, useState } from 'react';
+import { FileText, BookOpen, Search, Eye, Download, X, FolderOpen, RotateCcw, CloudCheck, UserRound, CalendarDays } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { useUser } from '../contexts/UserContext';
+import { materials } from '../data/materials';
 
 export default function Worksheets() {
-  const [activeTab, setActiveTab] = useState("all");
+  const { currentGrade, getGradeLabel } = useUser();
+  const [query, setQuery] = useState('');
+  const [subject, setSubject] = useState('all');
+  const [category, setCategory] = useState('all');
+  const [preview, setPreview] = useState(null);
+  const dialog = useRef(null);
+  const available = materials.filter(item => item.grade === 'all' || item.grade === currentGrade);
+  const visible = available.filter(item => (subject === 'all' || item.subject === subject) && (category === 'all' || item.category === category) && `${item.title} ${item.chapter}`.toLowerCase().includes(query.trim().toLowerCase()));
+  function openPreview(item) { setPreview(item); dialog.current.showModal(); }
 
-  const tabs = [
-    { id: "all", label: "ทั้งหมด" },
-    { id: "recent", label: "ล่าสุด" },
-    { id: "worksheets", label: "ใบงาน" },
-    { id: "documents", label: "เอกสารประกอบการเรียน" },
-  ];
-
-  const documents = [
-    { id: 1, title: "ใบงานที่ 1: สมการเชิงเส้น", course: "คณิตศาสตร์เพิ่มเติม", type: "worksheet", date: "10 ก.ย. 2026", size: "1.2 MB", ext: "pdf" },
-    { id: 2, title: "สไลด์บทที่ 2: โครงสร้างอะตอม", course: "วิทยาศาสตร์กายภาพ", type: "document", date: "8 ก.ย. 2026", size: "4.5 MB", ext: "pdf" },
-    { id: 3, title: "สรุปหลักภาษาไทย (ฉบับสอบ)", course: "ภาษาไทยพื้นฐาน", type: "document", date: "5 ก.ย. 2026", size: "2.1 MB", ext: "pdf" },
-    { id: 4, title: "Vocabulary List: Unit 1-3", course: "ภาษาอังกฤษสื่อสาร", type: "worksheet", date: "1 ก.ย. 2026", size: "0.8 MB", ext: "doc" },
-    { id: 5, title: "เฉลยแบบฝึกหัดบทที่ 1", course: "คณิตศาสตร์เพิ่มเติม", type: "document", date: "28 ส.ค. 2026", size: "3.4 MB", ext: "pdf" },
-  ];
-
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-textPrimary">ใบงานและเอกสาร</h1>
-          <p className="text-textSecondary mt-1">ค้นหาและดาวน์โหลดเอกสารประกอบการเรียนต่างๆ</p>
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <Input className="pl-10 h-12" placeholder="ค้นหาชื่อเอกสาร, รายวิชา..." />
-        </div>
-        <Button variant="outline" className="h-12 w-full sm:w-auto shrink-0 bg-white">
-          <Filter className="w-5 h-5 md:mr-2" />
-          <span className="hidden md:inline">ตัวกรอง</span>
-        </Button>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex overflow-x-auto hide-scrollbar border-b border-gray-200 mt-2">
-        <div className="flex space-x-6 min-w-max px-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pb-4 text-sm font-bold transition-colors relative ${
-                activeTab === tab.id ? "text-primary" : "text-textSecondary hover:text-textPrimary"
-              }`}
-            >
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Document Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {documents.map((doc) => (
-          <Card key={doc.id} className="p-4 flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all border border-transparent hover:border-primary/20">
-            <div className="flex items-start gap-4 mb-4">
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${doc.ext === 'pdf' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`}>
-                <FileDown className="w-7 h-7" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-textPrimary text-base line-clamp-2 leading-snug" title={doc.title}>{doc.title}</h3>
-                <p className="text-xs text-textSecondary mt-1 truncate">{doc.course}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[10px] font-medium bg-gray-100 px-2 py-0.5 rounded text-gray-600">{doc.date}</span>
-                  <span className="text-[10px] font-medium text-gray-400">{doc.size}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex gap-2 mt-auto pt-4 border-t border-gray-50">
-              <Button variant="ghost" className="flex-1 text-xs py-2 bg-gray-50/50 hover:bg-gray-100 h-auto">
-                <Eye className="w-4 h-4 mr-1.5" /> ดูตัวอย่าง
-              </Button>
-              <Button variant="secondary" className="flex-1 text-xs py-2 h-auto text-primary bg-primary/10 hover:bg-primary/20">
-                <Download className="w-4 h-4 mr-1.5" /> ดาวน์โหลด
-              </Button>
-            </div>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
+  return <div className="space-y-7"><section className="greeting-banner rounded-2xl border border-[#efeeeb] p-6 md:p-8"><div className="flex flex-wrap items-center justify-between gap-5"><div><span className="inline-flex items-center gap-2 rounded-full bg-secondary/80 px-3 py-1.5 text-[10px] font-semibold text-primary"><FolderOpen size={14} />ศูนย์รวมสื่อและคลังเอกสารบทเรียน</span><h1 className="mt-4 text-2xl font-bold">คลังใบงานและเอกสารการเรียน</h1><p className="mt-2 max-w-2xl text-sm leading-relaxed text-textSecondary">ดาวน์โหลดใบงาน สรุปบทเรียน และเอกสารประกอบการสอน เพื่อทบทวนและเรียนรู้ด้วยตัวเอง</p></div><div className="flex items-center gap-3 rounded-2xl border border-primary/10 bg-white/70 px-5 py-4"><CloudCheck size={30} className="text-primary" /><div><p className="text-xl font-bold text-primary">{available.length} <span className="text-xs font-medium">รายการ</span></p><p className="text-[10px] text-textSecondary">เอกสารพร้อมอ่านและดาวน์โหลด</p></div></div></div><div className="mt-7 flex flex-col gap-3 border-t border-primary/10 pt-6 md:flex-row"><div className="relative flex-1"><Search size={18} className="absolute left-4 top-3.5 text-textSecondary" /><input aria-label="ค้นหาเอกสาร" placeholder="ค้นหาชื่อใบงาน สรุปบทเรียน หรือคำสำคัญ..." value={query} onChange={event => setQuery(event.target.value)} className="h-11 w-full rounded-xl bg-white/80 pl-11 pr-4 text-xs outline-none focus:ring-2 focus:ring-success/30" /></div><select aria-label="กลุ่มสาระการเรียนรู้" value={subject} onChange={event => setSubject(event.target.value)} className="rounded-xl bg-white/80 px-4 py-3 text-xs text-textSecondary"><option value="all">ทุกกลุ่มสาระการเรียนรู้</option>{['คณิตศาสตร์', 'วิทยาศาสตร์', 'ภาษาไทย', 'ภาษาอังกฤษ'].map(item => <option key={item}>{item}</option>)}</select><Button variant="ghost" className="bg-white/70 text-xs" onClick={() => { setQuery(''); setSubject('all'); setCategory('all'); }}><RotateCcw size={15} />ล้างตัวกรอง</Button></div></section><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex rounded-xl bg-[#f0eeea] p-1">{[{ id: 'all', label: 'ใบงานทั้งหมด' }, { id: 'worksheet', label: 'แบบฝึกหัด' }, { id: 'summary', label: 'สรุปบทเรียน' }].map(item => <button key={item.id} aria-pressed={category === item.id} onClick={() => setCategory(item.id)} className={`rounded-lg px-3 py-2.5 text-xs font-medium ${category === item.id ? 'bg-white text-primary shadow-sm' : 'text-textSecondary'}`}>{item.label}</button>)}</div><p className="text-[10px] text-textSecondary">เอกสารตัวอย่าง · {getGradeLabel()} · ดาวน์โหลดเป็น TXT</p></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{visible.map(item => <Card key={item.id} className={`flex flex-col border-t-[3px] p-6 ${item.category === 'worksheet' ? 'border-t-[#e7b9b5]' : 'border-t-[#c2e3ca]'}`}><div className="mb-5 flex items-center justify-between gap-2"><span className={`rounded-xl p-3 ${item.category === 'worksheet' ? 'bg-[#fff1ef] text-[#bd7065]' : 'bg-secondary/60 text-primary'}`}>{item.category === 'worksheet' ? <FileText size={25} /> : <BookOpen size={25} />}</span><span className="rounded-full bg-[#f4f2ee] px-3 py-1.5 text-[10px] text-textSecondary">{item.subject}</span></div><h2 className="min-h-14 text-base font-bold leading-relaxed">{item.title}</h2><p className="mt-3 flex items-start gap-1.5 text-[11px] leading-relaxed text-textSecondary"><UserRound size={13} className="mt-0.5 shrink-0 text-success" />{item.chapter}</p><div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-4 text-[10px] text-textSecondary"><span className="flex items-center gap-1.5"><CalendarDays size={12} />ภาคเรียนที่ 1/2569</span><span>TXT · {Math.ceil(new Blob([item.content]).size / 1024)} KB</span></div><div className="mt-4 grid grid-cols-2 gap-2"><Button variant="ghost" onClick={() => openPreview(item)} className="bg-[#f5f3f0] text-primary text-xs"><Eye size={15} />ดูตัวอย่าง</Button><a href={`/materials/${item.id}.txt`} download={`${item.title}.txt`} className="action-blue flex min-h-11 items-center justify-center gap-2 rounded-xl text-xs font-semibold"><Download size={15} />ดาวน์โหลด</a></div></Card>)}</div>{!visible.length && <div className="py-16 text-center"><Search className="mx-auto mb-3 text-success" size={32} /><p className="text-sm font-medium">ไม่พบเอกสารที่ตรงกับการค้นหา</p><p className="mt-2 text-xs text-textSecondary">ลองเปลี่ยนคำค้นหรือกลุ่มสาระการเรียนรู้</p></div>}<dialog ref={dialog} aria-labelledby="material-title"><div className="sticky top-0 flex items-start justify-between gap-4 border-b border-gray-100 bg-white p-5"><div><p className="text-xs text-primary">{preview?.chapter}</p><h2 id="material-title" className="mt-1 text-lg font-bold">{preview?.title}</h2></div><form method="dialog"><button aria-label="ปิดตัวอย่างเอกสาร" className="rounded-full bg-gray-50 p-2"><X size={18} /></button></form></div><div className="p-6 md:p-8"><p className="whitespace-pre-line text-sm leading-8 text-textSecondary">{preview?.content}</p><a href={preview ? `/materials/${preview.id}.txt` : undefined} download={preview ? `${preview.title}.txt` : undefined} className="action-blue mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-xs font-semibold"><Download size={16} />ดาวน์โหลดเอกสาร (TXT)</a></div></dialog></div>;
 }

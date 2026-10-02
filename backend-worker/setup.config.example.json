@@ -1,0 +1,7 @@
+{
+  "firebaseApiKey": "ใส่ apiKey จาก Firebase Web App",
+  "firebaseServiceAccountFile": "secrets/firebase-service-account.json",
+  "googleOAuthClientId": "ใส่ Client ID จาก Google OAuth",
+  "googleOAuthClientSecret": "ใส่ Client Secret จาก Google OAuth",
+  "localOrigin": "http://127.0.0.1:5173"
+}

@@ -1,135 +1,30 @@
-import { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { ProgressBar } from "../components/ui/ProgressBar";
-import { PlayCircle, CheckCircle2, Circle, FileText, Download } from "lucide-react";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { BookOpen, ArrowRight, Search, UserRound, Star, PlayCircle, FileText, GraduationCap } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { ProgressBar } from '../components/ui/ProgressBar';
+import { TabSwitcher } from '../components/ui/TabSwitcher';
+import { useUser } from '../contexts/UserContext';
+import { mathCurriculum } from '../data/curriculum';
+import { getDashboardCourses } from '../data/platform';
 
 export default function Course() {
-  const [activeTab, setActiveTab] = useState("lessons");
-
-  const tabs = [
-    { id: "lessons", label: "บทเรียน" },
-    { id: "worksheets", label: "ใบงาน" },
-    { id: "assignments", label: "งานที่มอบหมาย" },
-    { id: "scores", label: "คะแนน" },
-    { id: "documents", label: "เอกสาร" },
-  ];
-
-  const lessons = [
-    { id: 1, title: "บทที่ 1 จำนวนและการดำเนินการ", duration: "45 นาที", status: "completed" },
-    { id: 2, title: "บทที่ 2 เลขยกกำลัง", duration: "50 นาที", status: "completed" },
-    { id: 3, title: "บทที่ 3 สมการ", duration: "1 ชั่วโมง 15 นาที", status: "in-progress" },
-    { id: 4, title: "บทที่ 4 ระบบสมการ", duration: "1 ชั่วโมง", status: "locked" },
-  ];
+  const { currentGrade, getGradeLabel } = useUser();
+  const [category, setCategory] = useState('all');
+  const [activeType, setActiveType] = useState('basic');
+  const [query, setQuery] = useState('');
+  const chapters = mathCurriculum[currentGrade][activeType].filter(chapter => chapter.title.toLowerCase().includes(query.trim().toLowerCase()));
+  const courses = getDashboardCourses(currentGrade).filter(course => (!query.trim() || course.title.toLowerCase().includes(query.trim().toLowerCase())) && (category === 'all' || (category === 'science' ? course.id === 'physics' : ['thai', 'english'].includes(course.id))));
+  const categories = [{ id: 'all', label: 'รายวิชาทั้งหมด' }, { id: 'math', label: 'คณิตศาสตร์' }, { id: 'science', label: 'วิทยาศาสตร์' }, { id: 'language', label: 'ภาษา' }];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Course Header */}
-      <Card className="bg-primary/5 border-none shadow-none">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="px-3 py-1 bg-white text-primary text-xs font-bold rounded-lg shadow-sm border border-primary/10">คณิตศาสตร์เพิ่มเติม</span>
-              <span className="text-sm text-textSecondary font-medium">ม.4 ภาคเรียนที่ 1</span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-textPrimary mb-2">คณิตศาสตร์เพิ่มเติม (ค31201)</h1>
-            <p className="text-textSecondary mb-4">ครูสมคิด รักเรียน • จำนวน 12 บทเรียน</p>
-            <p className="text-sm text-textPrimary leading-relaxed max-w-3xl">
-              ศึกษาความรู้พื้นฐานเกี่ยวกับจำนวนจริง การดำเนินการของจำนวนจริง เลขยกกำลังที่มีเลขชี้กำลังเป็นจำนวนตรรกยะ 
-              สมการและอสมการพหุนามตัวแปรเดียว การแก้สมการและอสมการ
-            </p>
-          </div>
-          
-          <div className="w-full md:w-64 bg-white p-4 rounded-xl shadow-sm border border-gray-100 shrink-0">
-            <div className="flex justify-between text-sm font-medium mb-2">
-              <span className="text-textSecondary">ความคืบหน้าการเรียน</span>
-              <span className="text-primary font-bold">65%</span>
-            </div>
-            <ProgressBar value={65} className="mb-4 h-2" />
-            <Button className="w-full">ทำเรียนต่อ บทที่ 3</Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Tabs */}
-      <div className="flex overflow-x-auto hide-scrollbar border-b border-gray-200">
-        <div className="flex space-x-6 min-w-max px-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pb-4 text-sm font-bold transition-colors relative ${
-                activeTab === tab.id ? "text-primary" : "text-textSecondary hover:text-textPrimary"
-              }`}
-            >
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tab Content */}
-      <div className="py-2">
-        {activeTab === "lessons" && (
-          <div className="space-y-4">
-            {lessons.map((lesson) => (
-              <Card key={lesson.id} className={`p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${lesson.status === 'locked' ? 'opacity-60 bg-gray-50' : 'hover:border-primary/30 border border-transparent'}`}>
-                <div className="flex items-start gap-4">
-                  <div className="mt-1 shrink-0">
-                    {lesson.status === "completed" && <CheckCircle2 className="w-6 h-6 text-green-500" />}
-                    {lesson.status === "in-progress" && <PlayCircle className="w-6 h-6 text-primary" />}
-                    {lesson.status === "locked" && <Circle className="w-6 h-6 text-gray-300" />}
-                  </div>
-                  <div>
-                    <h3 className={`font-bold text-base ${lesson.status === 'locked' ? 'text-gray-500' : 'text-textPrimary'}`}>{lesson.title}</h3>
-                    <p className="text-sm text-textSecondary mt-1 flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5" />
-                      {lesson.duration}
-                    </p>
-                  </div>
-                </div>
-                
-                <Button 
-                  variant={lesson.status === "completed" ? "outline" : lesson.status === "in-progress" ? "primary" : "ghost"}
-                  disabled={lesson.status === "locked"}
-                  className="md:w-auto"
-                >
-                  {lesson.status === "completed" ? "เรียนทบทวน" : lesson.status === "in-progress" ? "เข้าเรียน" : "ยังไม่เปิดให้เรียน"}
-                </Button>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {activeTab === "worksheets" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[1, 2].map((item) => (
-              <Card key={item} className="p-4 flex items-start gap-4 hover:border-primary/30 border border-transparent transition-all cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-softblue/20 flex items-center justify-center shrink-0 text-blue-500">
-                  <FileText className="w-6 h-6" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-textPrimary">ใบงานที่ {item}: แบบฝึกหัดทบทวน</h3>
-                  <p className="text-xs text-textSecondary mt-1">อัปโหลดเมื่อ: 10 ก.ย. 2026 • 1.2 MB</p>
-                </div>
-                <button className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors">
-                  <Download className="w-4 h-4" />
-                </button>
-              </Card>
-            ))}
-          </div>
-        )}
-        
-        {/* Placeholder for other tabs */}
-        {["assignments", "scores", "documents"].includes(activeTab) && (
-          <div className="text-center py-12">
-            <p className="text-textSecondary">กำลังโหลดข้อมูล...</p>
-          </div>
-        )}
-      </div>
+    <div className="space-y-7">
+      <section className="greeting-banner flex flex-wrap items-center justify-between gap-5 rounded-2xl p-6 md:p-8"><div><p className="mb-2 flex items-center gap-2 text-xs font-medium text-primary"><GraduationCap size={18} />ห้องเรียนของคุณ · {getGradeLabel()}</p><h1 className="text-2xl font-bold">วิชาของฉัน <span className="font-normal text-primary">(My Courses)</span></h1><p className="mt-2 text-sm text-textSecondary">เรียนรู้สิ่งใหม่ ทบทวนสิ่งที่คุ้นเคย และเติบโตในทุก ๆ วัน</p></div><span className="rounded-2xl bg-white/80 px-5 py-4 text-center"><span className="block text-2xl font-bold text-primary">4</span><span className="text-xs text-textSecondary">รายวิชาในภาคเรียนนี้</span></span></section>
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center"><div className="flex flex-wrap gap-2" aria-label="หมวดหมู่รายวิชา">{categories.map(item => <button key={item.id} onClick={() => setCategory(item.id)} aria-pressed={category === item.id} className={`rounded-full px-4 py-2.5 text-xs font-medium transition-colors ${category === item.id ? 'bg-secondary text-primary' : 'bg-white text-textSecondary hover:bg-secondary/40'}`}>{item.label}</button>)}</div><div className="relative"><Search className="absolute left-3.5 top-3 text-textSecondary" size={16} /><input aria-label="ค้นหารายวิชา" value={query} onChange={event => setQuery(event.target.value)} placeholder="ค้นหารายวิชา..." className="h-10 w-full rounded-xl border border-[#e8e9e1] bg-white pl-10 pr-4 text-xs outline-none focus:border-success md:w-56" /></div></div>
+      {category === 'math' ? <><TabSwitcher activeType={activeType} onTypeChange={setActiveType} /><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{chapters.map(chapter => <Card key={chapter.id} className="flex flex-col p-6"><div className="mb-5 flex items-center justify-between"><span className="rounded-xl bg-secondary/50 p-3 text-primary"><BookOpen size={23} /></span><span className="text-xs text-textSecondary">{chapter.chapter}</span></div><h2 className="text-lg font-bold">{chapter.title}</h2><p className="mt-2 line-clamp-2 min-h-11 text-xs leading-relaxed text-textSecondary">{chapter.description}</p><div className="mt-5 flex justify-between text-[11px]"><span>ความคืบหน้า</span><span className="text-primary">{chapter.progress}%</span></div><ProgressBar value={chapter.progress} className="mt-2 h-2" indicatorColor="bg-success" /><div className="mt-5 flex gap-4 text-xs text-textSecondary"><span className="flex items-center gap-1.5"><PlayCircle size={14} />{chapter.topics.reduce((count, topic) => count + topic.videos.length, 0)} คลิป</span><span className="flex items-center gap-1.5"><FileText size={14} />{chapter.documents.length} เอกสาร</span></div><Link to={`/courses/${chapter.id}`} className="mt-6 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary text-xs font-semibold text-white hover:bg-[#30593b]">เข้าสู่บทเรียน <ArrowRight size={16} /></Link></Card>)}</div>{!chapters.length && <Empty />}</> : <><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{courses.map(course => <Card key={course.id} className="flex flex-col p-6"><div className="mb-5 flex items-center justify-between"><span className="rounded-full bg-[#f4f2ee] px-3 py-1.5 text-[10px] text-textSecondary">{course.tag}</span><span className="flex items-center gap-1 text-xs text-primary"><Star size={14} />{course.score}</span></div><h2 className="min-h-14 text-lg font-bold">{course.title}</h2><p className="mt-1 flex items-center gap-1.5 text-xs text-textSecondary"><UserRound size={14} />{course.teacher}</p><div className="mt-7 flex justify-between text-[11px]"><span>ความคืบหน้า</span><span className="font-medium text-primary">{course.completed}/{course.lessons} บท ({course.progress}%)</span></div><ProgressBar value={course.progress} className="mt-2 h-2" indicatorColor="bg-success" /><Link to={course.id.startsWith('m') ? '/courses?category=math' : course.to} onClick={course.id.startsWith('m') ? event => { event.preventDefault(); setCategory('math'); setActiveType('additional'); setQuery(''); } : undefined} className="mt-6 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary text-xs font-semibold text-white hover:bg-[#30593b]">{course.progress === 100 ? 'ทบทวนรายวิชา' : 'เข้าสู่รายวิชา'} <ArrowRight size={16} /></Link></Card>)}</div>{!courses.length && <Empty />}</>}
+      <div className="flex items-center gap-3 rounded-2xl bg-[#f0f4eb] px-5 py-4 text-xs leading-relaxed text-[#75836e]"><BookOpen className="shrink-0 text-primary" size={20} />เนื้อหาคณิตศาสตร์มีทั้งวิชาพื้นฐานและเพิ่มเติม สำหรับชั้น ม.4–ม.6 เลือกระดับชั้นได้จากเมนูด้านบน</div>
     </div>
   );
 }
+
+function Empty() { return <div className="py-16 text-center text-sm text-textSecondary"><Search className="mx-auto mb-3 text-success" size={30} />ไม่พบรายวิชา ลองเปลี่ยนหมวดหมู่หรือคำค้น</div>; }

@@ -1,16 +1,37 @@
-# React + Vite
+# Sabai Learn · ห้องเรียนคณิตศาสตร์ออนไลน์
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React/Vite + Cloudflare Workers/D1 + Firebase Authentication และ Google Drive ส่วนตัวของครู หน้าตาพื้นครีม สีพาสเทล ปุ่มมน และมาสคอตหนังสือ อ้างอิง [Ko-fi](https://ko-fi.com/features) และ [Best Website Gallery](https://bestwebsite.gallery/sites/sotd/2024/11/07/ko-fi)
 
-Currently, two official plugins are available:
+## การใช้งาน
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- ครูหนึ่งบัญชีดูแลหลายห้อง แยกปี ภาคเรียน ชั้น ห้อง และคณิตศาสตร์พื้นฐาน/เพิ่มเติม
+- นักเรียนเห็นห้องที่ลงทะเบียน ค้นหาคาบย้อนหลัง อ่านเนื้อหา ดูวิดีโอ และโหลดใบงาน
+- ส่งไฟล์ผ่านเว็บ หรือให้ครูบันทึกรับงานกระดาษ ดูสถานะและป้ายส่งช้า ส่งใหม่ก่อนตรวจได้ หลังตรวจให้ครูเปิดรับแก้ไข
+- คะแนนปัจจุบันเต็ม 100 ใช้สัดส่วนเก็บ 60 กลางภาค 20 ปลายภาค 20 แยกคะแนน 0 จากคะแนนที่ยังไม่กรอก
+- ครูเพิ่มรายชื่อ รีเซ็ตรหัส ปิดและคืนบัญชี ตรวจงาน ส่งออก CSV และเลือกธงติดตามพร้อมหมายเหตุเฉพาะครู
+- เปลี่ยนรหัสครั้งแรก ใช้เซสชันคุกกี้ 12 ชั่วโมง เพิกถอนเมื่อออกจากระบบ ปิดบัญชี หรือเปลี่ยน/รีเซ็ตรหัส
+- ไฟล์ Drive เป็นส่วนตัว ใช้ OAuth `drive.file` และเปิดผ่าน API หลังตรวจสิทธิ์ รับเอกสาร/รูปไม่เกิน 10 MB ต่อไฟล์
+- รองรับคอมพิวเตอร์ มือถือ และแท็บเล็ต พร้อม LINE และเวลาติดต่อที่ครูตั้งได้
 
-## React Compiler
+## เริ่มต้น
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+อ่าน [คู่มือตั้งค่า Firebase, Google OAuth และเปิดออนไลน์](SETUP.md) ซึ่งรวมวิธีทดลองหน้าตาด้วยข้อมูลจำลองโดยไม่ต้องสร้างบัญชีบริการ
 
-## Expanding the Oxlint configuration
+เว็บจริงเรียก `/api` บนโดเมนเดียวกัน ไม่ใช้คะแนนหรือใบรับงานจาก localStorage ไม่มีบัญชีทดลองในฐานข้อมูลจริง บทเรียนเดิมใช้เป็นโครงร่างให้ครูเลือกเผยแพร่
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## ตรวจระบบ
+
+ใช้ Node.js 24 ขึ้นไป ติดตั้งส่วนประกอบในโฟลเดอร์หลักและ `backend-worker` แล้วรัน:
+
+```powershell
+npm run check
+npm run build
+```
+
+ชุดทดสอบใช้ SQLite และจำลองผู้ให้บริการภายนอก ครอบคลุมนักเรียนต่างห้อง งานออนไลน์/กระดาษ ส่งช้า ส่งซ้ำ งานตรวจแล้ว การอัปโหลดล้มเหลว คะแนน 0/ยังไม่กรอก สูตรคะแนน ธงติดตาม และการปิด/คืน/รีเซ็ตบัญชี ยังต้องทดสอบ Firebase และ Google Drive จริงหลังตั้งค่าครบ
+
+เว็บเผยแพร่บน [sabai-learn.natthaphan.workers.dev](https://sabai-learn.natthaphan.workers.dev) และเชื่อม D1 `sabailearn` แล้ว ระบบบัญชีผู้ใช้และไฟล์ยังต้องตั้งค่า Firebase และ Google OAuth ตาม [คู่มือตั้งค่า](SETUP.md) ก่อนให้นักเรียนใช้งาน
+
+Cloudflare Builds ใช้ Build command `npm run build`, Deploy command `npm run deploy`, Version command `npm run deploy:preview` และ Root directory `/` การเผยแพร่ไม่เพิ่มข้อมูลทดสอบลงฐานข้อมูลจริง
+
+ระบบใช้แผนฟรีภายใต้โควตาของบริการและพื้นที่ Drive ที่มีอยู่ ไม่เปลี่ยนแผนเสียเงินอัตโนมัติ

@@ -1,0 +1,8 @@
+APP_ORIGIN=http://127.0.0.1:5173
+FIREBASE_PROJECT_ID=your-firebase-project
+FIREBASE_API_KEY=your-firebase-api-key
+FIREBASE_SERVICE_ACCOUNT='{"project_id":"your-project","client_email":"your-service-account-email","private_key":"your-pkcs8-private-key"}'
+GOOGLE_OAUTH_CLIENT_ID=your-google-oauth-client-id
+GOOGLE_OAUTH_CLIENT_SECRET=your-google-oauth-client-secret
+DRIVE_TOKEN_ENCRYPTION_KEY=base64-encoded-32-byte-key
+BOOTSTRAP_SECRET=your-random-initial-setup-secret

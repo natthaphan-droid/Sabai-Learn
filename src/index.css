@@ -1,13 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Chonburi&family=Fraunces:wght@800;900&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   body {
     @apply bg-background text-textPrimary font-sans antialiased;
+    margin: 0;
   }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  button:not(:disabled), summary, select { cursor: pointer; }
+  button:focus-visible, a:focus-visible, summary:focus-visible, select:focus-visible { outline: 3px solid #7faf8a; outline-offset: 4px; }
+  h1, h2, h3, h4 { line-height: 1.5; }
+  ::selection { background: #c6eccf; color: #225032; }
 }
 
 /* Custom scrollbar for horizontal tables and areas */
@@ -19,9 +24,47 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #A8CDB2;
+  background: #c5d3c6;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #7FAF8A;
+  background: #7faf8a;
 }
+
+.page-content { animation: page-in 250ms ease-out; }
+.greeting-banner { background: radial-gradient(ellipse at 95% 60%, #e3eacf 0, transparent 55%), #ece8dd; }
+.section-title::before { content: ''; width: 5px; height: 22px; border-radius: 9px; background: #3b6848; display: inline-block; flex-shrink: 0; }
+.announcement-panel { background: #e6e9ce; border: 1px solid #d8ddc6; }
+.login-panel { background: radial-gradient(ellipse at 0 0, #d8e6fb, transparent 65%), linear-gradient(150deg, #e6d8f1, #e5eace); }
+.document-body { line-height: 1.85; }
+.document-body h3 { margin: 24px 0 8px; font-weight: 700; }
+.document-body ol { list-style: decimal; padding-left: 22px; }
+.document-body ul { list-style: disc; padding-left: 22px; }
+.document-body li { margin: 6px 0; }
+dialog { margin: auto; max-width: min(680px, calc(100vw - 32px)); width: 100%; max-height: 85dvh; border: none; border-radius: 24px; padding: 0; box-shadow: 0 24px 80px #233c2533; }
+dialog::backdrop { background: #17291c66; backdrop-filter: blur(4px); }
+summary { list-style: none; }
+summary::-webkit-details-marker { display: none; }
+@keyframes page-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+@media print { aside, header, nav, .no-print { display: none !important; } main { margin: 0 !important; } .page-content { padding: 0 !important; } .document-body { box-shadow: none; } }
+@media (max-height: 800px) { .sidebar-note { display: none; } }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+.display-heading, .page-content h1, .login-panel h1 { font-family: 'Chonburi', 'Noto Sans Thai', serif; font-weight: 400; }
+.brand-wordmark { font-family: 'Fraunces', 'Noto Sans Thai', serif; }
+.action-blue { background: #78a9ee; color: #252824; border: 1px solid #6d9de0; transition: transform 180ms ease, background 180ms ease; }
+.action-blue:hover { background: #6699e2; transform: translateY(-2px); }
+.feature-shell { border-radius: 30px; background: #eae6db; border: 1px solid #e1ddcf; scroll-margin-top: 90px; }
+.feature-white { border: 1px solid #e9e6dc; border-radius: 24px; background: #fffefa; }
+.home-page a:focus-visible { outline-offset: 5px; }
+.form-input { width: 100%; min-width: 0; min-height: 48px; border: 1px solid #d9ddce; border-radius: 12px; background: #fffefa; padding: 12px 14px; font-size: 14px; font-weight: 400; outline: none; }
+.form-input:focus { border-color: #648452; box-shadow: 0 0 0 3px #c6eccf80; }
+textarea.form-input { min-height: 110px; resize: vertical; line-height: 1.8; }
+.form-input:disabled { background: #f1f0e8; color: #7d8374; }
+.table-wrap { overflow-x: auto; border: 1px solid #e2e2d7; border-radius: 20px; background: #fffefa; }
+.school-table { width: 100%; text-align: left; font-size: 13px; }
+.school-table th { padding: 16px; background: #ececdf; color: #53634a; white-space: nowrap; font-weight: 600; }
+.school-table td { padding: 15px 16px; border-top: 1px solid #eeeee3; vertical-align: top; }
+.buddy-float { animation: buddy-float 5s ease-in-out infinite; }
+@keyframes buddy-float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-8px) rotate(1deg); } }
+@media (max-width: 640px) { .page-content h1 { font-size: 25px; } }

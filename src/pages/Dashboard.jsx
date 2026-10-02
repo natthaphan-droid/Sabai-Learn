@@ -1,143 +1,41 @@
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { ProgressBar } from "../components/ui/ProgressBar";
-import { Badge } from "../components/ui/Badge";
-import { Book, Clock, CheckCircle, TrendingUp, ChevronRight, FileText } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import { BookOpen, AlarmClock, CircleCheck, Medal, ArrowRight, UserRound, Star, CalendarDays, Flame, TrendingUp, CirclePlus, BadgeCheck, BellRing, Megaphone, LibraryBig, Leaf, Clock3 } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { ProgressBar } from '../components/ui/ProgressBar';
+import { Badge } from '../components/ui/Badge';
+import { useUser } from '../contexts/UserContext';
+import { assignmentsByGrade, getDashboardCourses, formatDate } from '../data/platform';
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-
-  const summary = [
-    { label: "วิชาที่กำลังเรียน", value: "6", icon: Book, color: "text-blue-500", bg: "bg-blue-100" },
-    { label: "งานที่ต้องส่ง", value: "3", icon: Clock, color: "text-yellow-600", bg: "bg-yellow-100" },
-    { label: "งานที่ส่งแล้ว", value: "12", icon: CheckCircle, color: "text-green-500", bg: "bg-green-100" },
-    { label: "คะแนนเฉลี่ย", value: "85%", icon: TrendingUp, color: "text-primary", bg: "bg-primary/20" },
-  ];
-
-  const courses = [
-    { id: 1, name: "คณิตศาสตร์เพิ่มเติม", teacher: "ครูสมคิด รักเรียน", lessons: 12, progress: 65, score: "15/20" },
-    { id: 2, name: "วิทยาศาสตร์กายภาพ", teacher: "ครูมาลี แสงดาว", lessons: 8, progress: 40, score: "8/10" },
-    { id: 3, name: "ภาษาไทยพื้นฐาน", teacher: "ครูใจดี มีสุข", lessons: 15, progress: 85, score: "42/50" },
-    { id: 4, name: "ภาษาอังกฤษสื่อสาร", teacher: "Teacher John Doe", lessons: 10, progress: 20, score: "10/100" },
-  ];
-
-  const assignments = [
-    { id: 1, title: "แบบฝึกหัดสมการเชิงเส้น", course: "คณิตศาสตร์เพิ่มเติม", deadline: "พรุ่งนี้, 23:59", status: "warning" },
-    { id: 2, title: "สรุปการทดลองเคมี", course: "วิทยาศาสตร์กายภาพ", deadline: "15 ก.ย. 2026", status: "warning" },
-    { id: 3, title: "เรียงความเรื่องสั้น", course: "ภาษาไทยพื้นฐาน", deadline: "18 ก.ย. 2026", status: "warning" },
+  const { currentGrade, profile } = useUser();
+  const courses = getDashboardCourses(currentGrade);
+  const pending = assignmentsByGrade[currentGrade].filter(task => task.status === 'pending');
+  const date = new Intl.DateTimeFormat('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Bangkok' }).format(new Date());
+  const stats = [
+    { label: 'วิชาที่กำลังเรียน', value: courses.length, unit: 'วิชา', icon: BookOpen, bg: 'bg-[#d8eddb]', color: 'text-primary', caption: 'พร้อมสำหรับการเรียนรู้ในเทอมนี้', smallIcon: CirclePlus },
+    { label: 'งานที่ต้องส่ง', value: pending.length, unit: 'รายการ', icon: AlarmClock, bg: 'bg-[#f9e48a]', color: 'text-[#827026]', caption: 'ค่อย ๆ ทำให้ครบตามเป้าหมาย', smallIcon: Clock3 },
+    { label: 'งานที่ส่งแล้ว', value: '18', unit: 'งาน', icon: CircleCheck, bg: 'bg-[#d4edda]', color: 'text-primary', caption: 'อัตราส่งตรงเวลา 95%', smallIcon: BadgeCheck },
+    { label: 'คะแนนเฉลี่ยรวม', value: '3.82', unit: '/ 4.00', icon: Medal, bg: 'bg-[#f0eee8]', color: 'text-primary', caption: 'เกรดเฉลี่ยสะสมปัจจุบัน', smallIcon: TrendingUp },
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Date & Greeting */}
-      <div className="md:hidden mb-4">
-        <h2 className="text-2xl font-bold text-textPrimary">สวัสดี, น้องนนท์ 👋</h2>
-        <p className="text-textSecondary">วันอาทิตย์ที่ 13 กันยายน 2026</p>
-      </div>
-      <div className="hidden md:block">
-        <p className="text-textSecondary font-medium">วันอาทิตย์ที่ 13 กันยายน 2026</p>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {summary.map((item, index) => (
-          <Card key={index} className="flex flex-col gap-3 p-4 md:p-5 hover:-translate-y-1 transition-transform duration-300">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.bg}`}>
-              <item.icon className={`w-5 h-5 ${item.color}`} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-textPrimary">{item.value}</p>
-              <p className="text-xs md:text-sm text-textSecondary font-medium">{item.label}</p>
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Courses */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-textPrimary">วิชาของฉัน</h3>
-            <button onClick={() => navigate('/courses')} className="text-sm font-medium text-primary hover:underline flex items-center">
-              ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {courses.map(course => (
-              <Card key={course.id} className="flex flex-col h-full border border-gray-50">
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-bold text-textPrimary line-clamp-1">{course.name}</h4>
-                  </div>
-                  <p className="text-sm text-textSecondary mb-4">{course.teacher}</p>
-                  
-                  <div className="space-y-1 mb-4">
-                    <div className="flex justify-between text-xs font-medium">
-                      <span className="text-textSecondary">ความคืบหน้า</span>
-                      <span className="text-primary">{course.progress}%</span>
-                    </div>
-                    <ProgressBar value={course.progress} />
-                  </div>
-                  
-                  <div className="flex gap-4 text-sm mb-5">
-                    <div>
-                      <p className="text-xs text-textSecondary">บทเรียน</p>
-                      <p className="font-bold text-textPrimary">{course.lessons}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-textSecondary">คะแนนล่าสุด</p>
-                      <p className="font-bold text-textPrimary">{course.score}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="w-full" 
-                  variant="outline" 
-                  onClick={() => navigate('/courses')}
-                >
-                  เข้าสู่รายวิชา
-                </Button>
-              </Card>
-            ))}
-          </div>
+    <div className="space-y-7">
+      <section className="greeting-banner relative overflow-hidden rounded-2xl px-6 py-7 md:px-7">
+        <div className="relative flex flex-col justify-between gap-5 xl:flex-row xl:items-center">
+          <div><div className="flex flex-wrap items-center gap-x-4 gap-y-2"><h1 className="text-[26px] font-bold tracking-tight">สวัสดี, {profile.nickname} <span className="inline-block origin-bottom-right">👋</span></h1><span className="flex items-center gap-1.5 rounded-full bg-secondary/70 px-3 py-1 text-xs font-medium text-primary"><CalendarDays size={13} />{date}</span></div><p className="mt-3 text-xs leading-relaxed text-[#758071]">วันนี้เป็นอีกวันที่ดีสำหรับการเรียนรู้ <span className="font-semibold text-primary">ค่อย ๆ ไปทีละบท</span> แล้วคุณจะเข้าใกล้เป้าหมายมากขึ้น 🌱</p></div>
+          <div className="flex shrink-0 items-center gap-3 self-start rounded-xl border border-white/70 bg-white/90 px-4 py-3 xl:self-auto"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f8e58c] text-[#77671e]"><Flame size={22} /></span><div><p className="text-xs text-textSecondary">สถิติความมุ่งมั่น</p><p className="mt-0.5 text-sm font-bold">เรียนติดต่อกัน 12 วัน <span className="ml-1">🔥</span></p></div></div>
         </div>
-
-        {/* Right Column: Assignments */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-textPrimary">ใกล้ถึงกำหนดส่ง</h3>
-            <button onClick={() => navigate('/assignments')} className="text-sm font-medium text-primary hover:underline">
-              ดูทั้งหมด
-            </button>
-          </div>
-          
-          <Card className="p-0 overflow-hidden">
-            <div className="divide-y divide-gray-100">
-              {assignments.map(task => (
-                <div key={task.id} className="p-4 hover:bg-gray-50 transition-colors flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center shrink-0 mt-0.5">
-                    <FileText className="w-5 h-5 text-yellow-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-textPrimary truncate">{task.title}</h4>
-                    <p className="text-xs text-textSecondary truncate">{task.course}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant={task.status}>ส่ง {task.deadline}</Badge>
-                    </div>
-                  </div>
-                  <Button size="sm" className="shrink-0 px-3 py-1.5 text-xs h-auto" onClick={() => navigate(`/assignments/${task.id}`)}>
-                    ส่งงาน
-                  </Button>
-                </div>
-              ))}
-            </div>
-            <div className="p-3 bg-gray-50 border-t border-gray-100 text-center">
-              <span className="text-xs text-textSecondary font-medium">คุณมีอีก 3 งานที่ต้องส่งในสัปดาห์นี้</span>
-            </div>
-          </Card>
+      </section>
+      <section aria-label="ภาพรวมการเรียน" className="grid grid-cols-2 gap-3 md:gap-5 xl:grid-cols-4">{stats.map(stat => <Card key={stat.label} className="p-4 md:p-5"><div className="mb-5 flex items-center justify-between gap-2"><span className="text-xs text-textSecondary">{stat.label}</span><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${stat.bg} ${stat.color}`}><stat.icon size={19} strokeWidth={1.7} /></span></div><div className="flex items-baseline gap-2"><span className="text-[34px] font-bold leading-none tracking-tight md:text-[37px]">{stat.value}</span><span className="text-xs text-textSecondary">{stat.unit}</span></div><p className={`mt-4 flex items-center gap-1.5 text-[11px] leading-relaxed ${stat.color}`}><stat.smallIcon size={13} className="shrink-0" />{stat.caption}</p></Card>)}</section>
+      <div className="grid items-start gap-7 xl:grid-cols-[1.35fr_1fr]">
+        <section className="space-y-5">
+          <div className="flex items-center justify-between gap-2"><h2 className="section-title flex items-center gap-2.5 text-base font-bold">วิชาของฉัน <span className="hidden text-sm font-medium text-[#788274] sm:inline">(My Courses)</span></h2><Link to="/courses" className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-primary hover:underline">ดูรายวิชาทั้งหมด <ArrowRight size={14} /></Link></div>
+          <div className="grid gap-4 sm:grid-cols-2">{courses.map(course => <Card key={course.id} className="flex flex-col p-5"><div className="mb-4 flex items-center justify-between gap-1"><span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${course.progress === 100 ? 'bg-secondary text-primary' : 'bg-[#f5f3f0] text-[#747b6e]'}`}>{course.progress === 100 ? '✓ จบหลักสูตรแล้ว' : course.tag}</span><span className="flex shrink-0 items-center gap-1 text-xs text-primary"><Star size={13} />{course.score}</span></div><h3 className="min-h-12 text-sm font-bold leading-relaxed">{course.title}</h3><p className="mt-1 flex items-center gap-1.5 text-xs text-textSecondary"><UserRound size={12} />{course.teacher}</p><div className="mt-6"><div className="mb-2 flex justify-between text-[11px]"><span className="font-medium">ความคืบหน้า</span><span className="font-semibold text-primary">{course.completed}/{course.lessons} บท ({course.progress}%)</span></div><ProgressBar value={course.progress} className="h-2" indicatorColor={course.progress === 100 ? 'bg-primary' : 'bg-success'} /></div><Link to={course.to} className={`mt-5 flex min-h-11 items-center justify-center gap-2 rounded-xl text-xs font-semibold transition-colors ${course.progress === 100 ? 'bg-[#eeece9] text-[#53604e] hover:bg-secondary/50' : 'bg-primary text-white hover:bg-[#30593b]'}`}>{course.progress === 100 ? 'ทบทวนรายวิชา' : 'เข้าสู่รายวิชา'} <ArrowRight size={16} /></Link></Card>)}</div>
+          <Link to="/formulas" className="group flex items-center gap-4 rounded-2xl border border-[#efede6] bg-[#f4f2ee] p-5"><span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#e1e8d7] text-primary"><LibraryBig size={30} strokeWidth={1.3} /></span><div><p className="text-[11px] font-medium text-primary">ห้องสมุดดิจิทัล Sabai</p><h3 className="mt-1 text-sm font-bold leading-relaxed">คลังสรุปบทเรียนและโจทย์เตรียมสอบ</h3><p className="mt-1 text-xs leading-relaxed text-textSecondary">ทบทวนสูตรสำคัญให้เข้าใจง่าย ได้ทุกที่ทุกเวลา</p></div><ArrowRight size={17} className="ml-auto shrink-0 text-primary transition-transform group-hover:translate-x-1" /></Link>
+        </section>
+        <div className="space-y-5">
+          <Card className="p-5 md:p-6"><div className="mb-5 flex items-center gap-2"><BellRing size={18} className="text-[#978124]" /><h2 className="text-sm font-bold">งานที่ใกล้ถึงกำหนดส่ง</h2><span className="ml-auto rounded-full bg-[#f9e68c] px-2 py-0.5 text-[11px] font-semibold text-[#776820]">{pending.length} งาน</span></div><div className="space-y-3">{pending.map((task, index) => <div key={task.id} className="rounded-xl bg-[#f6f4f1] p-4"><div className="flex justify-between gap-2"><p className="text-[11px] font-semibold text-primary">{task.course}</p><Badge variant="warning" className="shrink-0 px-2 py-0.5 text-[11px]">รอส่ง</Badge></div><h3 className="mt-1.5 text-xs font-semibold leading-relaxed">{task.title}</h3><div className="mt-4 flex items-center justify-between gap-2"><p className={`flex items-center gap-1.5 text-[11px] ${index === 0 ? 'text-[#b45f42]' : 'text-textSecondary'}`}><Clock3 size={12} />{formatDate(task.deadline)} · 23:59 น.</p><Link to={`/assignments/${task.id}`} className="shrink-0 rounded-lg bg-[#f8e18a] px-3 py-2 text-xs font-semibold text-[#695b1e] hover:bg-accent">ดูงาน</Link></div></div>)}</div><Link to="/assignments" className="mt-5 flex items-center justify-center gap-1.5 py-1.5 text-xs text-primary hover:underline">ดูการบ้านและภาระงานทั้งหมด <ArrowRight size={12} /></Link></Card>
+          <section className="announcement-panel relative overflow-hidden rounded-2xl p-5 md:p-6"><div className="absolute -top-10 -right-10 h-36 w-36 rounded-full bg-[#c4e3ca]" /><div className="relative mb-4 flex items-center gap-2"><Megaphone size={18} className="text-primary" /><h2 className="text-sm font-bold text-primary">ประกาศจากโรงเรียน</h2><span className="ml-auto rounded-full bg-white/75 px-2 py-1 text-[11px] font-medium text-primary">ข่าวสารใหม่</span></div><div className="relative space-y-3"><article className="rounded-xl bg-white/70 p-4"><div className="flex justify-between text-[11px] text-primary"><span className="font-semibold">ฝ่ายวิชาการ</span><span>1 ต.ค. 2569</span></div><h3 className="mt-2 text-xs font-bold leading-relaxed">เตรียมความพร้อมสำหรับการสอบปลายภาค</h3><p className="mt-2 text-xs leading-6 text-[#73806d]">ทบทวนเนื้อหาและฝึกทำโจทย์ได้จากคลังใบงาน อย่าลืมแบ่งเวลาพักและดูแลตัวเองด้วยนะ 🌱</p></article><article className="rounded-xl bg-white/70 p-4"><div className="flex justify-between text-[11px] text-primary"><span className="font-semibold">งานแนะแนว</span><span>30 ก.ย. 2569</span></div><h3 className="mt-2 text-xs font-bold leading-relaxed">ค้นหาสิ่งที่ชอบ วางแผนเส้นทางของตัวเอง</h3><p className="mt-2 text-xs leading-6 text-[#73806d]">พูดคุยเรื่องการเรียนและเป้าหมายในอนาคตกับคุณครูที่ปรึกษาได้ในช่วงเวลาของโรงเรียน</p></article></div><div className="relative mt-4 flex items-center justify-end gap-1 text-[11px] text-primary"><Leaf size={12} />เรียนรู้ไปด้วยกันอย่างสบายใจ</div></section>
         </div>
       </div>
     </div>

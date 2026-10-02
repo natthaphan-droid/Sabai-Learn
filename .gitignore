@@ -10,7 +10,20 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+artifacts/
 *.local
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.env
+.env.*
+!.env.example
+.wrangler/
+backend-worker/*-????????????.json
+backend-worker/dump.bin
+backend-worker/backups/
+backend-worker/secrets/
+backend-worker/setup.config.json
 
 # Editor directories and files
 .vscode/*

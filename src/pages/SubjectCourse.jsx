@@ -1,0 +1,12 @@
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, BookOpen, UserRound, CircleCheck, ChevronDown } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { ProgressBar } from '../components/ui/ProgressBar';
+import { subjectCourses } from '../data/platform';
+
+export default function SubjectCourse() {
+  const { id } = useParams();
+  const course = subjectCourses.find(item => item.id === id);
+  if (!course) return <div className="py-20 text-center">ไม่พบรายวิชา <Link to="/courses" className="text-primary underline">กลับไปหน้ารายวิชา</Link></div>;
+  return <div className="mx-auto max-w-5xl space-y-6"><Link to="/courses" className="flex items-center gap-2 text-xs text-textSecondary"><ArrowLeft size={16} />กลับไปหน้ารายวิชา</Link><section className="greeting-banner rounded-2xl p-7 md:p-9"><span className="rounded-full bg-secondary px-3 py-1 text-xs text-primary">{course.tag}</span><h1 className="mt-4 text-2xl font-bold">{course.title}</h1><p className="mt-3 text-sm leading-relaxed text-textSecondary">{course.description}</p><p className="mt-5 flex items-center gap-2 text-xs text-primary"><UserRound size={15} />{course.teacher}</p><div className="mt-6 max-w-md"><div className="mb-2 flex justify-between text-xs"><span>ความคืบหน้ารายวิชา (ข้อมูลตัวอย่าง)</span><span>{course.progress}%</span></div><ProgressBar value={course.progress} indicatorColor="bg-success" /></div></section><h2 className="section-title flex items-center gap-3 text-lg font-bold">หน่วยการเรียนรู้และบทเรียน</h2><div className="space-y-4">{course.units.map((unit, index) => <Card key={unit.title} className="p-0"><details open={index === 0} className="group"><summary className="flex items-center gap-4 p-5 md:p-6"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/50 text-sm font-bold text-primary">{String(index + 1).padStart(2, '0')}</span><span className="flex-1 text-sm font-bold">{unit.title}</span>{course.progress === 100 && <CircleCheck className="text-success" size={19} />}<ChevronDown className="text-textSecondary transition-transform group-open:rotate-180" size={19} /></summary><div className="mx-5 mb-6 border-t border-gray-100 pt-5 md:mx-6"><p className="mb-3 flex items-center gap-2 text-xs font-semibold text-primary"><BookOpen size={16} />สรุปบทเรียน</p><p className="whitespace-pre-line text-sm leading-8 text-textSecondary">{unit.text}</p></div></details></Card>)}</div></div>;
+}

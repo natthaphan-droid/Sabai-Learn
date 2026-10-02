@@ -7,21 +7,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#F7F8F5',
-        primary: '#7FAF8A',
-        secondary: '#A8CDB2',
-        accent: '#F4D96B',
-        softblue: '#AFC9D8',
-        textPrimary: '#333333',
-        textSecondary: '#777777',
+        background: '#F5F1E8',
+        primary: '#293124',
+        secondary: '#DFEACF',
+        accent: '#F5D681',
+        softblue: '#D8E6FB',
+        textPrimary: '#252824',
+        textSecondary: '#737A72',
         surface: '#FFFFFF',
+        danger: '#BA4941',
+        success: '#879F79',
       },
       fontFamily: {
-        sans: ['"Noto Sans Thai"', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', '"Noto Sans Thai"', 'sans-serif'],
       },
       boxShadow: {
-        soft: '0 4px 20px rgba(0, 0, 0, 0.02)',
-        card: '0 8px 30px rgba(0, 0, 0, 0.04)',
+        soft: '0 2px 10px rgba(40, 65, 45, 0.03)',
+        card: '0 3px 16px rgba(40, 65, 45, 0.035)',
       },
       borderRadius: {
         'xl': '16px',

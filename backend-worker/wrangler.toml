@@ -1,0 +1,18 @@
+name = "sabai-learn"
+account_id = "c8e33286bed73fdebccd00dec803262b"
+main = "src/platform.js"
+compatibility_date = "2026-09-18"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[assets]
+directory = "../dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sabailearn"
+database_id = "6b6eb4a1-7e57-40ec-ac78-9f0752857abb"
+migrations_dir = "migrations"

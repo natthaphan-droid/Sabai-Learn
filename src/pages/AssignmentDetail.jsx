@@ -1,217 +1,59 @@
-import { useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
-import { ArrowLeft, Paperclip, UploadCloud, File, X, CheckCircle } from "lucide-react";
+import { useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, UploadCloud, FileText, X, CircleCheck, CalendarDays, UserRound, Save, Send, BadgeCheck } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+import { allAssignments, formatDate } from '../data/platform';
+import { mathCurriculum } from '../data/curriculum';
 
 export default function AssignmentDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-  
-  const [dragActive, setDragActive] = useState(false);
+  const fileInput = useRef(null);
+  const confirmation = useRef(null);
   const [files, setFiles] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [note, setNote] = useState(() => { try { return JSON.parse(localStorage.getItem(`sabai_draft_${id}`) || '{}').note || ''; } catch { return ''; } });
+  const [receipt, setReceipt] = useState(() => { try { return JSON.parse(localStorage.getItem(`sabai_receipt_${id}`) || 'null'); } catch { return null; } });
+  const topic = Object.values(mathCurriculum).flatMap(grade => Object.values(grade).flat()).flatMap(chapter => chapter.topics.map(item => ({ ...item, chapter }))).find(item => `ws-${item.chapter.id}-${item.id}` === id);
+  const assignment = allAssignments.find(item => item.id === id) || (topic && { title: `แบบฝึกหัดทบทวน: ${topic.name}`, course: topic.chapter.title, description: `ทบทวนเนื้อหาเรื่อง ${topic.name} เขียนสรุปแนวคิดสำคัญ พร้อมยกตัวอย่างโจทย์และวิธีทำ 3 ข้อ สามารถแนบไฟล์ PDF หรือภาพถ่ายคำตอบได้`, maxScore: 20, status: 'pending' });
+  const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
+  if (!assignment) return <div className="py-20 text-center"><h1 className="text-lg font-bold">ไม่พบงานที่ต้องการ</h1><Link to="/assignments" className="mt-4 inline-block text-sm text-primary underline">กลับไปหน้างานที่ได้รับ</Link></div>;
+  const isComplete = assignment.status === 'completed';
 
-  // Mock assignment data based on ID
-  const assignment = {
-    title: "แบบฝึกหัดสมการเชิงเส้น",
-    course: "คณิตศาสตร์เพิ่มเติม",
-    teacher: "ครูสมคิด รักเรียน",
-    deadline: "14 ก.ย. 2026 เวลา 23:59 น.",
-    maxScore: 20,
-    status: isSubmitted ? "submitted" : "pending",
-    description: "ให้นักเรียนทำแบบฝึกหัดเรื่องสมการเชิงเส้นตัวแปรเดียว จำนวน 10 ข้อ โดยแสดงวิธีทำอย่างละเอียด สามารถเขียนลงกระดาษแล้วถ่ายรูป หรือทำในแท็บเล็ตแล้วเซฟเป็น PDF ส่งได้ครับ",
-    attachments: [
-      { name: "แบบฝึกหัด_บทที่3.pdf", size: "2.4 MB" }
-    ]
-  };
+  function addFiles(list) {
+    const incoming = Array.from(list);
+    const invalid = incoming.find(file => !/\.(pdf|docx?|jpe?g|png|webp)$/i.test(file.name) || file.size > 10 * 1024 * 1024 || file.size === 0);
+    if (invalid) { setError(`ไฟล์ ${invalid.name} ไม่รองรับหรือมีขนาดเกิน 10 MB กรุณาใช้ PDF, Word หรือภาพ JPG/PNG/WebP`); return; }
+    setError(''); setMessage('');
+    setFiles(previous => [...previous, ...incoming.filter(file => !previous.some(old => old.name === file.name && old.size === file.size))]);
+    if (fileInput.current) fileInput.current.value = '';
+  }
+  function saveDraft() {
+    try {
+      localStorage.setItem(`sabai_draft_${id}`, JSON.stringify({ note, savedAt: new Date().toISOString() }));
+      setMessage('บันทึกข้อความฉบับร่างในอุปกรณ์นี้แล้ว ไฟล์แนบจะต้องเลือกใหม่หากปิดหรือรีเฟรชหน้า');
+      setError('');
+    } catch { setError('ไม่สามารถบันทึกฉบับร่างได้ พื้นที่จัดเก็บในอุปกรณ์อาจเต็ม'); }
+  }
+  async function submit() {
+    if (!apiUrl || !files.length || uploading) return;
+    confirmation.current.close(); setUploading(true); setError('');
+    try {
+      await Promise.all(files.map(async file => {
+        const body = new FormData(); body.append('file', file); body.append('assignmentId', id); body.append('note', note);
+        const response = await fetch(`${apiUrl}/api/upload`, { method: 'POST', body });
+        if (!response.ok) throw new Error('อัปโหลดไม่สำเร็จ กรุณาลองอีกครั้ง');
+      }));
+      const result = { at: new Date().toISOString(), files: files.map(file => file.name) };
+      localStorage.setItem(`sabai_receipt_${id}`, JSON.stringify(result));
+      setReceipt(result); setFiles([]);
+    } catch { setError('อัปโหลดไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อหรือติดต่อคุณครู ไฟล์ของคุณยังอยู่ในหน้านี้'); }
+    finally { setUploading(false); }
+  }
 
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(e.dataTransfer.files);
-    }
-  };
-
-  const handleChange = (e) => {
-    e.preventDefault();
-    if (e.target.files && e.target.files[0]) {
-      handleFiles(e.target.files);
-    }
-  };
-
-  const handleFiles = (newFiles) => {
-    const fileArray = Array.from(newFiles);
-    setFiles((prev) => [...prev, ...fileArray]);
-  };
-
-  const removeFile = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = () => {
-    setShowModal(false);
-    setIsSubmitted(true);
-    setFiles([]);
-  };
-
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500 pb-10">
-      {/* Back Button */}
-      <button 
-        onClick={() => navigate(-1)}
-        className="flex items-center text-sm font-medium text-textSecondary hover:text-textPrimary transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4 mr-1" /> ย้อนกลับ
-      </button>
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-bold text-primary">{assignment.course}</span>
-            <span className="text-gray-300">•</span>
-            <span className="text-sm text-textSecondary">{assignment.teacher}</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-textPrimary mb-3">{assignment.title}</h1>
-          <div className="flex items-center gap-3">
-            {assignment.status === "pending" ? <Badge variant="warning">รอส่ง</Badge> : <Badge variant="success">ส่งแล้ว</Badge>}
-            <span className="text-sm text-textSecondary font-medium">คะแนนเต็ม: {assignment.maxScore}</span>
-          </div>
-        </div>
-        
-        <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl border border-red-100 flex flex-col items-end shrink-0">
-          <span className="text-xs font-bold uppercase tracking-wider mb-1">กำหนดส่ง</span>
-          <span className="font-bold">{assignment.deadline}</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Col: Details & Attachments */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <h3 className="font-bold text-lg border-b border-gray-100 pb-3 mb-4">รายละเอียดงาน</h3>
-            <p className="text-textPrimary leading-relaxed whitespace-pre-wrap text-sm md:text-base">
-              {assignment.description}
-            </p>
-            
-            {assignment.attachments.length > 0 && (
-              <div className="mt-6 pt-4 border-t border-gray-100">
-                <h4 className="font-bold text-sm text-textSecondary mb-3">ไฟล์แนบจากครู ({assignment.attachments.length})</h4>
-                <div className="space-y-2">
-                  {assignment.attachments.map((file, idx) => (
-                    <div key={idx} className="flex items-center p-3 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer group">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mr-3">
-                        <Paperclip className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-textPrimary group-hover:text-primary transition-colors">{file.name}</p>
-                        <p className="text-xs text-textSecondary">{file.size}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </Card>
-        </div>
-
-        {/* Right Col: Submission Area */}
-        <div className="space-y-6">
-          <Card className="sticky top-24">
-            <h3 className="font-bold text-lg mb-4">ส่งงานของคุณ</h3>
-            
-            {isSubmitted ? (
-              <div className="text-center py-8">
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                <h4 className="font-bold text-lg text-textPrimary mb-1">ส่งงานเรียบร้อยแล้ว</h4>
-                <p className="text-sm text-textSecondary mb-6">วันที่ส่ง: 13 ก.ย. 2026, 11:45 น.</p>
-                <Button variant="outline" className="w-full" onClick={() => setIsSubmitted(false)}>ยกเลิกการส่ง (เพื่อส่งใหม่)</Button>
-              </div>
-            ) : (
-              <>
-                <div 
-                  className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all ${
-                    dragActive ? "border-primary bg-primary/5" : "border-gray-200 bg-gray-50 hover:bg-gray-100"
-                  }`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  <UploadCloud className={`w-10 h-10 mx-auto mb-3 ${dragActive ? 'text-primary' : 'text-gray-400'}`} />
-                  <p className="text-sm font-bold text-textPrimary mb-1">ลากไฟล์มาวางที่นี่</p>
-                  <p className="text-xs text-textSecondary mb-4">รองรับ PDF, Word, Image (สูงสุด 10MB)</p>
-                  
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleChange}
-                  />
-                  <Button variant="secondary" size="sm" onClick={() => fileInputRef.current.click()}>
-                    หรือเลือกไฟล์
-                  </Button>
-                </div>
-
-                {files.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    {files.map((file, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg border border-gray-200 bg-white">
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <File className="w-4 h-4 text-primary shrink-0" />
-                          <span className="text-xs font-medium truncate">{file.name}</span>
-                        </div>
-                        <button onClick={() => removeFile(idx)} className="text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition-colors">
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <Button 
-                  className="w-full mt-6" 
-                  disabled={files.length === 0}
-                  onClick={() => setShowModal(true)}
-                >
-                  ส่งงาน
-                </Button>
-              </>
-            )}
-          </Card>
-        </div>
-      </div>
-
-      {/* Confirmation Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <Card className="w-full max-w-sm animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-center mb-2">ยืนยันการส่งงาน?</h3>
-            <p className="text-center text-sm text-textSecondary mb-6">คุณได้แนบไฟล์ทั้งหมด {files.length} ไฟล์ ตรวจสอบความถูกต้องก่อนส่ง</p>
-            <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1 bg-gray-100 hover:bg-gray-200" onClick={() => setShowModal(false)}>ยกเลิก</Button>
-              <Button className="flex-1" onClick={handleSubmit}>ยืนยันส่งงาน</Button>
-            </div>
-          </Card>
-        </div>
-      )}
-    </div>
-  );
+  return <div className="space-y-6"><Link to="/assignments" className="flex items-center gap-2 text-xs text-textSecondary hover:text-primary"><ArrowLeft size={16} />กลับไปหน้างานที่ได้รับ</Link><section className="greeting-banner rounded-2xl p-6 md:p-8"><div className="flex flex-col justify-between gap-4 md:flex-row md:items-start"><div><p className="mb-2 flex items-center gap-2 text-xs text-primary"><UserRound size={14} />{assignment.course} · ครูสมศรี มีสุข</p><h1 className="text-2xl font-bold leading-relaxed">{assignment.title}</h1><div className="mt-4 flex items-center gap-3"><Badge variant={isComplete || receipt ? 'success' : 'warning'}>{isComplete ? 'ตรวจแล้ว' : receipt ? 'อัปโหลดแล้ว' : 'รอส่ง'}</Badge><span className="text-xs text-textSecondary">คะแนนเต็ม {assignment.maxScore} คะแนน</span></div></div><div className="shrink-0 rounded-xl bg-white/80 px-4 py-3"><p className="mb-1 text-[10px] text-textSecondary">กำหนดส่ง</p><p className="flex items-center gap-2 text-xs font-semibold text-primary"><CalendarDays size={15} />{assignment.deadline ? `${formatDate(assignment.deadline)} · 23:59 น.` : 'ไม่มีกำหนดส่ง'}</p></div></div></section><div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"><Card className="p-6 md:p-8"><h2 className="section-title flex items-center gap-2.5 text-lg font-bold">คำชี้แจงและรายละเอียดโจทย์</h2><p className="mt-5 text-sm leading-8 text-textSecondary">{assignment.description}</p><div className="mt-7 rounded-xl bg-[#f4f6ef] p-5"><h3 className="flex items-center gap-2 text-sm font-semibold text-primary"><BadgeCheck size={18} />ก่อนส่งงาน อย่าลืมตรวจสอบ</h3><ul className="mt-3 list-disc space-y-2 pl-5 text-xs leading-relaxed text-textSecondary"><li>เขียนชื่อ ชั้น และเลขที่ให้ชัดเจน</li><li>แสดงวิธีทำและตรวจทานคำตอบให้ครบทุกข้อ</li><li>ถ่ายภาพให้อ่านได้ชัดเจน หรือรวมเป็นไฟล์ PDF</li></ul></div>{isComplete && <div className="mt-6 rounded-xl bg-secondary/40 p-5"><p className="text-sm font-semibold text-primary">ผลการประเมิน: {assignment.score}/{assignment.maxScore} คะแนน</p><p className="mt-2 text-xs text-textSecondary">ข้อมูลคะแนนตัวอย่างสำหรับทดลองใช้งาน</p></div>}</Card><Card className="p-6"><h2 className="mb-5 text-lg font-bold">{isComplete ? 'สถานะงานของคุณ' : 'พื้นที่ส่งงานของคุณ'}</h2>{isComplete || receipt ? <div className="py-6 text-center"><CircleCheck size={48} className="mx-auto mb-4 text-success" /><h3 className="text-base font-bold">{isComplete ? 'งานนี้ตรวจเรียบร้อยแล้ว' : 'อัปโหลดไฟล์เรียบร้อยแล้ว'}</h3>{receipt && <><p className="mt-2 text-xs text-textSecondary">{formatDate(receipt.at)}</p><ul className="mt-4 space-y-1 text-xs text-textSecondary">{receipt.files.map(name => <li key={name} className="break-all">{name}</li>)}</ul></>}</div> : <><label htmlFor="assignment-note" className="mb-2 block text-xs font-medium text-textSecondary">ข้อความถึงคุณครู</label><textarea id="assignment-note" placeholder="เพิ่มคำอธิบายหรือข้อสงสัยเกี่ยวกับงาน..." value={note} onChange={event => setNote(event.target.value)} className="mb-4 min-h-24 w-full resize-y rounded-xl border border-gray-200 p-3 text-xs leading-relaxed outline-none focus:border-success" /><div onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={event => { event.preventDefault(); setDragging(false); addFiles(event.dataTransfer.files); }} className={`rounded-2xl border-2 border-dashed p-6 text-center transition-colors ${dragging ? 'border-success bg-secondary/40' : 'border-[#dce3d6] bg-[#fafbf7]'}`}><UploadCloud className="mx-auto mb-3 text-success" size={38} /><p className="text-sm font-semibold">ลากไฟล์มาวางที่นี่</p><p className="mt-2 text-[10px] leading-relaxed text-textSecondary">PDF, Word, JPG, PNG, WebP · สูงสุด 10 MB ต่อไฟล์</p><input ref={fileInput} aria-label="แนบไฟล์งาน" type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" className="hidden" onChange={event => addFiles(event.target.files)} /><Button variant="secondary" className="mx-auto mt-4" onClick={() => fileInput.current.click()}>เลือกไฟล์</Button></div><div className="mt-3 space-y-2">{files.map((file, index) => <div key={`${file.name}-${file.size}`} className="flex items-center gap-2 rounded-lg bg-[#f5f5f0] p-3"><FileText size={16} className="shrink-0 text-primary" /><span className="min-w-0 flex-1 truncate text-xs">{file.name}</span><span className="text-[9px] text-textSecondary">{(file.size / 1024).toFixed(0)} KB</span><button aria-label={`ลบไฟล์ ${file.name}`} onClick={() => setFiles(previous => previous.filter((_, i) => i !== index))}><X size={16} className="text-textSecondary" /></button></div>)}</div>{error && <p role="alert" className="mt-4 text-xs leading-relaxed text-danger">{error}</p>}{message && <p role="status" className="mt-4 rounded-xl bg-secondary/40 p-3 text-xs leading-relaxed text-primary">{message}</p>}<Button variant="outline" className="mt-5 w-full" onClick={saveDraft}><Save size={16} />บันทึกฉบับร่าง</Button><Button className="mt-3 w-full" disabled={!apiUrl || !files.length || uploading} onClick={() => confirmation.current.showModal()}><Send size={16} />{uploading ? 'กำลังอัปโหลด...' : 'ส่งงาน'}</Button>{!apiUrl && <p className="mt-3 text-[10px] leading-relaxed text-textSecondary">ระบบตัวอย่าง: บันทึกข้อความฉบับร่างได้ การส่งไฟล์ถึงคุณครูจะพร้อมเมื่อเชื่อมต่อระบบโรงเรียน</p>}</>}</Card></div><dialog ref={confirmation} aria-labelledby="confirm-title" className="max-w-sm"><div className="p-7"><h2 id="confirm-title" className="text-xl font-bold">ยืนยันการส่งงาน</h2><p className="mt-3 text-sm text-textSecondary">คุณกำลังส่งไฟล์ {files.length} ไฟล์ ตรวจสอบให้ครบก่อนส่ง</p><div className="mt-6 flex gap-3"><Button variant="ghost" className="flex-1 bg-gray-100" onClick={() => confirmation.current.close()}>กลับไปตรวจ</Button><Button className="flex-1" onClick={submit}>ยืนยันส่งงาน</Button></div></div></dialog></div>;
 }

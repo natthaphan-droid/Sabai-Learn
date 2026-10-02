@@ -1,133 +1,21 @@
-import { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
-import { FileText, Calendar, Clock, ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ClipboardList, Search, Clock3, CalendarDays, BadgeCheck, ArrowUpRight, CircleCheck, FileText } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { useUser } from '../contexts/UserContext';
+import { assignmentsByGrade, formatDate } from '../data/platform';
 
 export default function Assignments() {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("all");
+  const { currentGrade, getGradeLabel } = useUser();
+  const [filter, setFilter] = useState('all');
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState('earliest');
+  const tasks = assignmentsByGrade[currentGrade];
+  const visible = tasks.filter(task => (filter === 'all' || task.status === filter) && `${task.title} ${task.course}`.toLowerCase().includes(query.trim().toLowerCase())).sort((a, b) => sort === 'earliest' ? Date.parse(a.deadline) - Date.parse(b.deadline) : Date.parse(b.deadline) - Date.parse(a.deadline));
+  const pending = tasks.filter(task => task.status === 'pending').length;
+  const completed = tasks.length - pending;
+  const filters = [{ id: 'all', label: 'ทั้งหมด', count: tasks.length }, { id: 'pending', label: 'รอส่ง', count: pending }, { id: 'completed', label: 'ตรวจแล้ว', count: completed }];
 
-  const tabs = [
-    { id: "all", label: "งานทั้งหมด" },
-    { id: "pending", label: "รอส่ง" },
-    { id: "submitted", label: "ส่งแล้ว" },
-    { id: "graded", label: "ตรวจแล้ว" },
-    { id: "overdue", label: "เกินกำหนด" },
-  ];
-
-  const assignments = [
-    { 
-      id: 1, title: "แบบฝึกหัดสมการเชิงเส้น", course: "คณิตศาสตร์เพิ่มเติม", teacher: "ครูสมคิด รักเรียน",
-      assigned: "10 ก.ย. 2026", deadline: "พรุ่งนี้, 23:59", status: "pending", score: "-"
-    },
-    { 
-      id: 2, title: "สรุปการทดลองเคมีเรื่องกรด-เบส", course: "วิทยาศาสตร์กายภาพ", teacher: "ครูมาลี แสงดาว",
-      assigned: "8 ก.ย. 2026", deadline: "15 ก.ย. 2026", status: "pending", score: "-"
-    },
-    { 
-      id: 3, title: "เรียงความเรื่องสั้น", course: "ภาษาไทยพื้นฐาน", teacher: "ครูใจดี มีสุข",
-      assigned: "5 ก.ย. 2026", deadline: "10 ก.ย. 2026", status: "submitted", score: "-"
-    },
-    { 
-      id: 4, title: "Worksheet 1: Grammar", course: "ภาษาอังกฤษสื่อสาร", teacher: "Teacher John Doe",
-      assigned: "1 ก.ย. 2026", deadline: "7 ก.ย. 2026", status: "graded", score: "9/10"
-    },
-    { 
-      id: 5, title: "รายงานโครงงานวิทยาศาสตร์", course: "วิทยาศาสตร์กายภาพ", teacher: "ครูมาลี แสงดาว",
-      assigned: "20 ส.ค. 2026", deadline: "31 ส.ค. 2026", status: "overdue", score: "-"
-    },
-  ];
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "pending": return <Badge variant="warning">รอส่ง</Badge>;
-      case "submitted": return <Badge variant="success">ส่งแล้ว</Badge>;
-      case "graded": return <Badge variant="info">ตรวจแล้ว</Badge>;
-      case "overdue": return <Badge variant="danger">เกินกำหนด</Badge>;
-      default: return <Badge>ไม่ระบุ</Badge>;
-    }
-  };
-
-  const filteredAssignments = activeTab === "all" 
-    ? assignments 
-    : assignments.filter(a => a.status === activeTab);
-
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-textPrimary">งานที่ได้รับมอบหมาย</h1>
-          <p className="text-textSecondary mt-1">จัดการและติดตามงานทั้งหมดของคุณได้ที่นี่</p>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex overflow-x-auto hide-scrollbar border-b border-gray-200">
-        <div className="flex space-x-2 min-w-max pb-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${
-                activeTab === tab.id 
-                  ? "bg-primary text-white shadow-sm" 
-                  : "bg-transparent text-textSecondary hover:bg-gray-100"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Assignments List */}
-      <div className="space-y-4">
-        {filteredAssignments.map((assignment) => (
-          <Card key={assignment.id} className="p-4 md:p-5 flex flex-col md:flex-row gap-4 md:items-center hover:border-primary/40 border border-transparent transition-all cursor-pointer" onClick={() => navigate(`/assignments/${assignment.id}`)}>
-            <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100 hidden sm:flex">
-              <FileText className="w-6 h-6 text-textSecondary" />
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                {getStatusBadge(assignment.status)}
-                {assignment.status === 'graded' && (
-                  <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">คะแนน: {assignment.score}</span>
-                )}
-              </div>
-              <h3 className="font-bold text-lg text-textPrimary truncate">{assignment.title}</h3>
-              <p className="text-sm text-textSecondary truncate">{assignment.course} • {assignment.teacher}</p>
-              
-              <div className="flex flex-wrap gap-4 mt-3 text-xs font-medium text-textSecondary">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <span>สั่ง: {assignment.assigned}</span>
-                </div>
-                <div className={`flex items-center gap-1.5 ${assignment.status === 'overdue' ? 'text-red-500' : 'text-gray-500'}`}>
-                  <Clock className="w-4 h-4" />
-                  <span>กำหนดส่ง: {assignment.deadline}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="shrink-0 pt-2 md:pt-0 w-full md:w-auto">
-              <Button variant="outline" className="w-full md:w-auto pr-3">
-                ดูรายละเอียด <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            </div>
-          </Card>
-        ))}
-
-        {filteredAssignments.length === 0 && (
-          <div className="text-center py-12 px-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50/50">
-            <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-textPrimary mb-1">ไม่มีงานในหมวดหมู่นี้</h3>
-            <p className="text-textSecondary text-sm">คุณเยี่ยมมาก! จัดการงานได้เรียบร้อยแล้ว</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return <div className="space-y-7"><Card className="p-6 md:p-8"><div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-center"><div><p className="mb-2 flex items-center gap-2 text-xs font-medium text-primary"><ClipboardList size={18} />ภาระงานและกิจกรรมการเรียนรู้</p><h1 className="text-2xl font-bold">งานที่ได้รับมอบหมาย</h1><p className="mt-2 text-sm text-textSecondary">ติดตามกำหนดส่ง จัดการงานค้าง และดูผลการประเมิน · {getGradeLabel()}</p></div><div className="relative"><Search size={17} className="absolute left-4 top-3.5 text-textSecondary" /><input aria-label="ค้นหางาน" placeholder="ค้นหาชื่องาน หรือชื่อวิชา..." value={query} onChange={event => setQuery(event.target.value)} className="h-11 w-full rounded-xl bg-[#f5f3f0] pl-11 pr-4 text-xs outline-none focus:ring-2 focus:ring-success/40 xl:w-64" /></div></div><div className="mt-7 flex flex-wrap gap-3" aria-label="สถานะงาน">{filters.map(item => <button key={item.id} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)} className={`flex items-center gap-3 rounded-full px-4 py-2.5 text-xs ${filter === item.id ? 'bg-secondary font-semibold text-primary' : 'text-textSecondary hover:bg-gray-50'}`}>{item.label}<span className="rounded-full bg-white/75 px-2 py-0.5 text-[10px]">{item.count}</span></button>)}</div></Card><div className="grid gap-4 sm:grid-cols-3">{[{ icon: Clock3, label: 'งานที่รอส่ง', value: `${pending} ชิ้นงาน`, bg: 'bg-[#f9e48a]' }, { icon: CircleCheck, label: 'งานที่ตรวจแล้ว', value: `${completed} ชิ้นงาน`, bg: 'bg-secondary' }, { icon: BadgeCheck, label: 'คะแนนเต็มต่อชิ้นงาน', value: '20 คะแนน', bg: 'bg-[#daf0df]' }].map(item => <Card key={item.label} className="flex items-center gap-4 p-5"><span className={`rounded-xl p-3 text-primary ${item.bg}`}><item.icon size={23} /></span><div><p className="text-[11px] text-textSecondary">{item.label}</p><p className="mt-1 text-lg font-bold">{item.value}</p></div></Card>)}</div><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-base font-bold">รายการการบ้านและงานที่มอบหมาย <span className="ml-2 rounded-full bg-[#edece7] px-2.5 py-1 text-[10px] font-medium text-textSecondary">{visible.length} รายการ</span></h2><select aria-label="เรียงงาน" value={sort} onChange={event => setSort(event.target.value)} className="bg-transparent text-xs text-primary"><option value="earliest">กำหนดส่งเร็วที่สุด</option><option value="latest">กำหนดส่งล่าสุด</option></select></div><div className="grid gap-5 xl:grid-cols-2">{visible.map(task => <Card key={task.id} className="flex flex-col p-6"><div className="flex flex-wrap items-center justify-between gap-2"><span className="rounded-full bg-[#f0efea] px-3 py-1.5 text-[10px] font-medium">● {task.course}</span><Badge variant={task.status === 'completed' ? 'success' : 'warning'}>{task.status === 'completed' ? 'ตรวจแล้ว' : 'รอส่ง'}</Badge></div><h3 className="mt-5 text-lg font-bold leading-relaxed">{task.title}</h3><p className="mt-2 line-clamp-2 text-xs leading-6 text-textSecondary">{task.description}</p><div className="mt-5 flex items-center gap-3 rounded-xl bg-[#f5f3f0] p-4"><CalendarDays size={18} className="shrink-0 text-textSecondary" /><div><p className="text-[10px] text-textSecondary">กำหนดส่ง</p><p className="mt-1 text-xs font-medium text-primary">{formatDate(task.deadline)} · 23:59 น.</p></div>{task.status === 'completed' && <span className="ml-auto text-sm font-bold text-primary">{task.score}/{task.maxScore}</span>}</div><div className="mt-6 flex items-center justify-between gap-3"><span className="flex items-center gap-2 text-xs text-textSecondary"><BadgeCheck size={17} className="text-primary" />คะแนนเต็ม {task.maxScore}</span><Link to={`/assignments/${task.id}`} className="flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-xs font-semibold text-white hover:bg-[#30593b]">{task.status === 'completed' ? 'ดูรายละเอียด' : 'ดูรายละเอียด / ส่งงาน'} <ArrowUpRight size={16} /></Link></div></Card>)}</div>{!visible.length && <div className="rounded-2xl border border-dashed border-primary/20 py-14 text-center"><FileText className="mx-auto mb-3 text-success" size={32} /><h3 className="text-sm font-bold">ไม่พบงานในรายการนี้</h3><p className="mt-1 text-xs text-textSecondary">ลองเปลี่ยนตัวกรองหรือค้นหาด้วยคำอื่น</p></div>}</div>;
 }
