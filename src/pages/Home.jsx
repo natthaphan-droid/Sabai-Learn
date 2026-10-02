@@ -1,13 +1,54 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, ClipboardCheck, ChartNoAxesColumnIncreasing, ChevronDown, Sparkles, Check, MessageCircle } from 'lucide-react';
+import { ArrowRight, BookOpen, ClipboardCheck, ChartNoAxesColumnIncreasing, ChevronDown, Sparkles, Check, Pin, KeyRound, MessageCircle } from 'lucide-react';
 import LearningBuddy from '../components/LearningBuddy';
+
+const topics = [['news','ข่าวสาร'],['features','การใช้งาน'],['faq','คำถามที่พบบ่อย']];
+const features = [
+  { icon:BookOpen, color:'#e2eacb', title:'ขาดคาบไหน ก็กลับมาเรียนได้', text:'เลือกวันที่เรียน เปิดเนื้อหาและวิดีโอ แล้วดาวน์โหลดใบงานของคาบนั้น ทุกอย่างอยู่ในห้องเรียนเดียวกัน', tags:['บทเรียนรายคาบ','วิดีโอประกอบ','ใบงานดาวน์โหลด'] },
+  { icon:ClipboardCheck, color:'#e5dcf0', title:'รู้ว่างานไหน ส่งแล้วหรือยัง', text:'แนบรูปใบงานหรือไฟล์ผ่านเว็บได้ ครูบันทึกงานที่รับเป็นกระดาษให้ได้ด้วย พร้อมดูสถานะและข้อเสนอแนะหลังตรวจ', tags:['ส่งไฟล์และรูป','งานกระดาษ','ติดตามงานค้าง'] },
+  { icon:ChartNoAxesColumnIncreasing, color:'#d9e5f7', title:'เห็นคะแนน เพื่อก้าวต่อไป', text:'ดูคะแนนเก็บ กลางภาค และปลายภาคของตัวเอง ครูติดตามนักเรียนที่ต้องการความช่วยเหลือและติดต่อกันผ่าน LINE ได้', tags:['คะแนนเก็บ 60','กลางภาค 20','ปลายภาค 20'] },
+];
+const questions = [
+  { q:'ขาดเรียนแล้วเริ่มเรียนตรงไหน?', a:'เข้าสู่ระบบ เลือกห้องเรียน แล้วเลือกวันที่หรือหัวข้อของคาบที่ขาด เปิดสื่อประกอบและดาวน์โหลดใบงานของคาบนั้นได้' },
+  { q:'สมัครเองได้ไหม?', a:'ครูเป็นผู้สร้างบัญชีและจัดนักเรียนเข้าห้องเรียน ขอรหัสเข้าใช้จากครู และเปลี่ยนรหัสผ่านเมื่อเข้าใช้ครั้งแรก' },
+  { q:'ส่งงานเป็นกระดาษได้ไหม?', a:'ได้ ครูจะบันทึกการรับงานกระดาษ สถานะงานและคะแนนจะแสดงในบัญชีของนักเรียนเช่นเดียวกับงานที่ส่งออนไลน์' },
+  { q:'ลืมรหัสผ่านต้องทำอย่างไร?', a:'ติดต่อครูเพื่อรีเซ็ตรหัสผ่าน จากนั้นเข้าสู่ระบบและตั้งรหัสผ่านใหม่ของตัวเอง' },
+];
+
 export default function Home() {
-  const features = [{ icon: BookOpen, color: '#e2eacb', title: 'ขาดคาบไหน ก็กลับมาเรียนได้', text: 'เลือกวันที่เรียน เปิดเนื้อหาและวิดีโอ แล้วดาวน์โหลดใบงานของคาบนั้น ทุกอย่างอยู่ในห้องเรียนเดียวกัน', tags: ['บทเรียนรายคาบ','วิดีโอประกอบ','ใบงานดาวน์โหลด'] }, { icon: ClipboardCheck, color: '#e5dcf0', title: 'รู้ว่างานไหน ส่งแล้วหรือยัง', text: 'แนบรูปใบงานหรือไฟล์ผ่านเว็บได้ ครูบันทึกงานที่รับเป็นกระดาษให้ได้ด้วย พร้อมดูสถานะและข้อเสนอแนะหลังตรวจ', tags: ['ส่งไฟล์และรูป','งานกระดาษ','ติดตามงานค้าง'] }, { icon: ChartNoAxesColumnIncreasing, color: '#d9e5f7', title: 'เห็นคะแนน เพื่อก้าวต่อไป', text: 'ดูคะแนนเก็บ กลางภาค และปลายภาคของตัวเอง ครูติดตามนักเรียนที่ต้องการความช่วยเหลือและติดต่อกันผ่าน LINE ได้', tags: ['คะแนนเก็บ 60','กลางภาค 20','ปลายภาค 20'] }];
-  return <div className="home-page min-h-screen bg-background"><header className="sticky top-0 z-30 border-b border-primary/10 bg-background/95 backdrop-blur"><div className="mx-auto flex h-20 max-w-[1200px] items-center justify-between gap-3 px-5 md:px-9"><Link to="/" className="flex items-center gap-2"><img src="/brand-mark.svg" alt="" className="h-10 w-10" /><span className="brand-wordmark text-xl font-black md:text-2xl">Sabai Learn<span className="text-[#8aa474]">.</span></span></Link><nav className="hidden gap-7 text-sm font-semibold md:flex" aria-label="เมนูหน้าแรก"><a href="#features">เรียนอย่างไร</a><a href="#faq">คำถามที่พบบ่อย</a></nav><Link to="/login" className="rounded-full bg-primary px-5 py-3 text-xs font-semibold text-white">เข้าสู่ห้องเรียน</Link></div></header>
-    <main className="mx-auto max-w-[1120px] px-5 md:px-9"><section className="grid items-center gap-6 py-12 md:min-h-[580px] md:grid-cols-[1.2fr_1fr]"><div><span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/50 px-3 py-2 text-xs"><Sparkles size={15} />ห้องเรียนคณิตศาสตร์ออนไลน์</span><h1 className="display-heading text-[40px] leading-[1.4] md:text-[56px]">ตามเรียนได้ทุกคาบ<br /><span className="text-[#648452]">สบายใจทุกก้าว</span></h1><p className="mt-6 max-w-md text-base leading-8 text-textSecondary">ขาดเรียนหรือลา ก็กลับมาเรียนรู้ด้วยตัวเองได้<br className="hidden md:block" />มีบทเรียน ใบงาน งานส่ง และคะแนนในที่เดียว</p><Link to="/login" className="action-blue mt-7 inline-flex min-h-14 items-center gap-3 rounded-2xl px-6 text-sm font-bold">เข้าห้องเรียนของฉัน <ArrowRight size={18} /></Link><p className="mt-5 flex items-center gap-2 text-xs text-textSecondary"><Check size={14} />ใช้รหัสนักเรียนและรหัสผ่านที่ครูให้</p></div><LearningBuddy className="buddy-float mx-auto w-full max-w-[470px]" /></section>
-      <section className="mb-12 grid gap-4 rounded-3xl bg-[#eae6db] p-5 md:grid-cols-3 md:p-7">{['เปิดได้ทั้งคอม มือถือ และแท็บเล็ต','ข้อมูลของแต่ละคนแยกเป็นส่วนตัว','ครูและนักเรียนมีพื้นที่ของตัวเอง'].map(text => <p key={text} className="flex items-center gap-3 text-sm leading-7"><Check className="shrink-0 text-primary" size={19} />{text}</p>)}</section>
-      <div id="features" className="space-y-8">{features.map((feature,index) => <section key={feature.title} className="feature-shell grid items-center gap-7 p-6 md:grid-cols-2 md:p-10"><div className={index % 2 ? 'md:order-2' : ''}><span className="text-xs font-semibold text-textSecondary">0{index + 1} · เรียนได้ในจังหวะของตัวเอง</span><h2 className="display-heading mt-3 text-[30px] leading-relaxed">{feature.title}</h2><p className="mt-4 text-sm leading-8 text-textSecondary">{feature.text}</p></div><div className="feature-white p-8" style={{ backgroundColor: feature.color }}><feature.icon size={44} strokeWidth={1.4} className="mb-7 text-primary" /><div className="space-y-3">{feature.tags.map(tag => <div key={tag} className="flex min-h-14 items-center gap-3 rounded-2xl bg-white/75 px-5 text-sm font-semibold"><Check size={18} className="text-primary" />{tag}</div>)}</div></div></section>)}</div>
-      <section id="faq" className="mx-auto my-16 max-w-3xl"><h2 className="display-heading mb-7 text-center text-3xl">อยากรู้เพิ่มเติม?</h2>{[{ q:'ขาดเรียนแล้วเริ่มเรียนตรงไหน?', a:'เข้าสู่ระบบ เลือกห้องเรียน แล้วเลือกวันที่หรือหัวข้อของคาบที่ขาด เปิดสื่อประกอบและดาวน์โหลดใบงานของคาบนั้นได้' },{ q:'สมัครเองได้ไหม?', a:'ครูเป็นผู้สร้างบัญชีและจัดนักเรียนเข้าห้องเรียน ขอรหัสเข้าใช้จากครู และเปลี่ยนรหัสผ่านเมื่อเข้าใช้ครั้งแรก' },{ q:'ส่งงานเป็นกระดาษได้ไหม?', a:'ได้ ครูจะบันทึกการรับงานกระดาษ สถานะงานและคะแนนจะแสดงในบัญชีของนักเรียนเช่นเดียวกับงานที่ส่งออนไลน์' },{ q:'ลืมรหัสผ่านต้องทำอย่างไร?', a:'ติดต่อครูเพื่อรีเซ็ตรหัสผ่าน จากนั้นเข้าสู่ระบบและตั้งรหัสผ่านใหม่ของตัวเอง' }].map(item => <details key={item.q} className="group border-b border-primary/15 py-5"><summary className="flex items-center justify-between gap-4 text-sm font-semibold">{item.q}<ChevronDown size={18} className="shrink-0 group-open:rotate-180" /></summary><p className="mt-4 text-sm leading-8 text-textSecondary">{item.a}</p></details>)}</section>
-      <section className="mb-14 rounded-[28px] bg-[#e7eccf] px-6 py-12 text-center"><MessageCircle className="mx-auto mb-5 text-primary" size={26} /><h2 className="display-heading text-3xl">ไม่ต้องตามเรียนคนเดียว</h2><p className="mt-4 text-sm leading-7 text-textSecondary">กลับมาทบทวนได้ทุกคาบ และติดต่อครูได้จากห้องเรียน</p><Link to="/login" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-bold text-white">เข้าห้องเรียน <ArrowRight size={17} /></Link></section>
-    </main><footer className="border-t border-primary/10 px-5 py-8"><div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-4 text-xs text-textSecondary"><span className="brand-wordmark text-xl text-primary">Sabai Learn.</span><span>เรียนคณิตศาสตร์อย่างสบายใจ</span><Link to="/privacy">การใช้ข้อมูล</Link></div></footer></div>;
+  const [topic,setTopic] = useState('news');
+  return <div className="home-page">
+    <a href="#home-board" className="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:bg-white focus:p-3">ข้ามไปยังกระดานข่าวสาร</a>
+    <header className="home-header">
+      <Link to="/" className="home-brand"><img src="/brand-mark.svg" alt="" /><span className="brand-wordmark">Sabai Learn<span className="text-[#8aa474]">.</span></span></Link>
+      <Link to="/login" className="home-login">เข้าสู่ห้องเรียน <ArrowRight size={16} /></Link>
+    </header>
+    <main className="home-main">
+      <section className="home-intro" aria-labelledby="home-title">
+        <p className="home-eyebrow"><Sparkles size={15} />ห้องเรียนคณิตศาสตร์ออนไลน์</p>
+        <h1 id="home-title" className="display-heading">ตามเรียนได้ทุกคาบ<br /><span className="text-[#648452]">สบายใจทุกก้าว</span></h1>
+        <p className="home-description">บทเรียน ใบงาน งานส่ง และคะแนนในที่เดียว<br />ขาดเรียนหรือลา ก็กลับมาทบทวนได้เสมอ</p>
+        <LearningBuddy className="home-buddy buddy-float" />
+        <Link to="/login" className="home-enter action-blue">เข้าห้องเรียนของฉัน <ArrowRight size={18} /></Link>
+        <p className="home-account-note"><Check size={14} />ใช้รหัสนักเรียนและรหัสผ่านที่ครูให้</p>
+      </section>
+      <section className="home-board" aria-labelledby="home-board-title">
+        <div className="home-board-heading"><span className="home-pin"><Pin size={21} /></span><div><h2 id="home-board-title">กระดานข่าวสาร</h2><p>ข้อมูลและคำแนะนำก่อนเข้าเรียน</p></div><span className="home-board-label">สบายเรียน</span></div>
+        <nav className="home-board-topics" aria-label="หัวข้อกระดานข่าวสาร">{topics.map(([key,label]) => <button key={key} type="button" aria-pressed={topic === key} aria-controls="home-board" onClick={() => setTopic(key)}>{label}</button>)}</nav>
+        <div key={topic} id="home-board" className="home-board-scroll" role="region" aria-label={`กระดานข่าวสาร · ${topics.find(([key]) => key === topic)[1]}`} tabIndex={0}>
+          {topic === 'news' && <>
+            <article className="home-paper home-paper-pinned"><p className="home-paper-tag"><Pin size={14} />ปักหมุด · ก่อนเข้าเรียนครั้งแรก</p><h3>เริ่มต้นด้วยบัญชีที่ครูให้</h3><p>นักเรียนใช้รหัสนักเรียนเป็นชื่อเข้าใช้ ครูจะจัดห้องเรียนไว้ให้ เมื่อเข้าใช้ครั้งแรก ให้เปลี่ยนรหัสผ่านเริ่มต้นเป็นรหัสของตัวเองอย่างน้อย 8 ตัวอักษร</p><p className="home-paper-note"><KeyRound size={16} />ลืมรหัสผ่าน? ติดต่อครูเพื่อรีเซ็ตรหัสได้</p></article>
+            <article className="home-paper"><p className="home-paper-tag"><BookOpen size={14} />เรียนรู้ในจังหวะของตัวเอง</p><h3>คาบที่ขาด ยังกลับมาเรียนได้</h3><p>เลือกห้องและวันที่เรียน เพื่อเปิดเนื้อหา ดูวิดีโอ และดาวน์โหลดใบงาน ติดตามงานที่ส่งแล้วหรืองานที่รอส่ง พร้อมดูคะแนนของตัวเองได้ในห้องเรียน</p></article>
+            <article className="home-paper home-paper-green"><h3>ไม่ต้องตามเรียนคนเดียว</h3><p>ติดต่อครูผ่าน LINE และดูเวลาติดต่อได้จากห้องเรียน หากยังไม่มีบัญชี ให้ขอรหัสเข้าใช้จากครูประจำวิชา</p><p className="home-paper-note"><MessageCircle size={16} />ค่อย ๆ เรียน ค่อย ๆ เติบโต</p></article>
+            <div className="home-board-assurances">{['เปิดได้ทั้งคอม มือถือ และแท็บเล็ต','ข้อมูลของแต่ละคนแยกเป็นส่วนตัว','ครูและนักเรียนมีพื้นที่ของตัวเอง'].map(text => <p key={text}><Check size={15} />{text}</p>)}</div>
+          </>}
+          {topic === 'features' && features.map(feature => <article key={feature.title} className="home-paper"><span className="home-feature-icon" style={{ background:feature.color }}><feature.icon size={24} /></span><h3>{feature.title}</h3><p>{feature.text}</p><div className="home-feature-tags">{feature.tags.map(tag => <span key={tag}>{tag}</span>)}</div></article>)}
+          {topic === 'faq' && <><p className="home-faq-intro">เลือกคำถามเพื่อเปิดอ่านคำตอบ</p>{questions.map(item => <details key={item.q} className="home-paper group"><summary>{item.q}<ChevronDown size={18} className="shrink-0 group-open:rotate-180" /></summary><p>{item.a}</p></details>)}</>}
+        </div>
+        <p className="home-board-hint">เลื่อนอ่านเพิ่มเติมภายในกระดานนี้</p>
+      </section>
+    </main>
+    <footer className="home-footer"><span>Sabai Learn · เรียนคณิตศาสตร์อย่างสบายใจ</span><Link to="/privacy">การใช้ข้อมูล</Link></footer>
+  </div>;
 }
