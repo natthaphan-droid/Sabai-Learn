@@ -28,9 +28,11 @@ npm run check
 npm run build
 ```
 
-ชุดทดสอบใช้ SQLite และจำลองผู้ให้บริการภายนอก ครอบคลุมนักเรียนต่างห้อง งานออนไลน์/กระดาษ ส่งช้า ส่งซ้ำ งานตรวจแล้ว การอัปโหลดล้มเหลว คะแนน 0/ยังไม่กรอก สูตรคะแนน ธงติดตาม และการปิด/คืน/รีเซ็ตบัญชี ยังต้องทดสอบ Firebase และ Google Drive จริงหลังตั้งค่าครบ
+ชุดทดสอบใช้ SQLite และจำลองผู้ให้บริการภายนอก ครอบคลุมนักเรียนต่างห้อง งานออนไลน์/กระดาษ ส่งช้า ส่งซ้ำ งานตรวจแล้ว การอัปโหลดล้มเหลว คะแนน 0/ยังไม่กรอก สูตรคะแนน ธงติดตาม และการปิด/คืน/รีเซ็ตบัญชี รวมถึงการตั้งค่า Firebase ก่อน Drive โดยรักษากุญแจเดิม
 
-เว็บเผยแพร่บน [sabai-learn.natthaphan.workers.dev](https://sabai-learn.natthaphan.workers.dev) และเชื่อม D1 `sabailearn` แล้ว ระบบบัญชีผู้ใช้และไฟล์ยังต้องตั้งค่า Firebase และ Google OAuth ตาม [คู่มือตั้งค่า](SETUP.md) ก่อนให้นักเรียนใช้งาน
+เว็บเผยแพร่บน [sabai-learn.natthaphan.workers.dev](https://sabai-learn.natthaphan.workers.dev) และเชื่อม D1 `sabailearn` กับ Firebase แล้ว สร้างบัญชีครู `teacher` และทดสอบการเข้าสู่ระบบจริง คุกกี้ปลอดภัย การบังคับเปลี่ยนรหัสครั้งแรก และการเพิกถอนเซสชันสำเร็จ รหัสผ่านเริ่มต้นเก็บเฉพาะในเครื่องของผู้ดูแล
+
+Google OAuth สำหรับ Drive ยังต้องตั้งค่าตาม [คู่มือตั้งค่า](SETUP.md) ก่อนรับไฟล์ออนไลน์ ยังไม่ได้ทดสอบการส่งไฟล์กับ Google Drive จริง
 
 Cloudflare Builds ใช้ Build command `npm run build`, Deploy command `npm run deploy`, Version command `npm run deploy:preview` และ Root directory `/` การเผยแพร่ไม่เพิ่มข้อมูลทดสอบลงฐานข้อมูลจริง
 

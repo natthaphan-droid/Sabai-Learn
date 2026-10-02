@@ -2,7 +2,7 @@
 
 เว็บเผยแพร่แล้วที่ [sabai-learn.natthaphan.workers.dev](https://sabai-learn.natthaphan.workers.dev) พร้อมฐานข้อมูล D1 และการเผยแพร่จาก GitHub สำรองฐานข้อมูลเดิมและเพิ่มตารางห้องเรียนแล้ว
 
-สิ่งที่ยังต้องเตรียมคือ Firebase, Google OAuth และบัญชีครู ทำขั้นตอน 1–3 ด้วยบัญชีครูหรือผู้ดูแล จากนั้นส่งค่าตั้งค่าขึ้น Cloudflare ด้วย `secret bulk` และสร้างครูตามขั้นตอน 5 ไม่ต้องส่งรหัสผ่านหรือไฟล์กุญแจในแชต ระหว่างนี้หน้าเข้าสู่ระบบจะแจ้งว่ากำลังเตรียมบัญชีผู้ใช้
+เชื่อม Firebase และสร้างครูก่อนได้ แล้วเพิ่ม Google OAuth สำหรับไฟล์ภายหลัง ทำขั้นตอน 1 และ 3 ด้วยบัญชีครูหรือผู้ดูแล จากนั้นส่งค่าตั้งค่าขึ้น Cloudflare ด้วย `secret bulk` และสร้างครูตามขั้นตอน 5 ไม่ต้องส่งรหัสผ่านหรือไฟล์กุญแจในแชต ระหว่างที่ยังไม่มีครู หน้าเข้าสู่ระบบจะแจ้งว่ากำลังเตรียมบัญชีผู้ใช้
 
 ## 1. สร้าง Firebase สำหรับบัญชีผู้ใช้
 
@@ -55,8 +55,8 @@ New-Item -ItemType Directory -Force backend-worker/secrets
 | --- | --- |
 | `firebaseApiKey` | `apiKey` ของ Web app จาก Firebase |
 | `firebaseServiceAccountFile` | `secrets/firebase-service-account.json` |
-| `googleOAuthClientId` | OAuth Client ID |
-| `googleOAuthClientSecret` | OAuth Client secret |
+| `googleOAuthClientId` | OAuth Client ID หรือเว้นว่างเมื่อยังไม่เชื่อม Drive |
+| `googleOAuthClientSecret` | OAuth Client secret หรือเว้นว่างเมื่อยังไม่เชื่อม Drive |
 | `localOrigin` | `http://127.0.0.1:5173` |
 
 เก็บ JSON บัญชีบริการตามช่องที่กำหนด จากนั้นรัน:
@@ -65,7 +65,9 @@ New-Item -ItemType Directory -Force backend-worker/secrets
 node backend-worker/scripts/configure.mjs
 ```
 
-ตัวช่วยจะสร้าง `.dev.vars` สำหรับเครื่องนี้ และ `secrets/worker-secrets.json` สำหรับเปิดออนไลน์ พร้อมสร้างกุญแจเข้ารหัส Drive และกุญแจสร้างครูโดยไม่พิมพ์ค่าบนหน้าจอ เก็บสำรอง `worker-secrets.json` อย่างปลอดภัย โดยเฉพาะ `DRIVE_TOKEN_ENCRYPTION_KEY` ต้องใช้ค่าเดิมเพื่ออ่านโทเคน Drive ที่เข้ารหัสไว้
+ตัวช่วยจะสร้าง `.dev.vars` สำหรับเครื่องนี้ และ `secrets/worker-secrets.json` สำหรับเปิดออนไลน์ พร้อมสร้างกุญแจเข้ารหัส Drive และกุญแจสร้างครูโดยไม่พิมพ์ค่าบนหน้าจอ ถ้ายังไม่มี Google OAuth ให้เว้นทั้งสองช่องไว้ หรือคงข้อความตัวอย่างไว้ เมื่อพร้อมแล้วเติมทั้งคู่และรันตัวช่วยอีกครั้ง ค่ากุญแจเดิมจะคงอยู่
+
+เก็บสำรอง `worker-secrets.json` อย่างปลอดภัย โดยเฉพาะ `DRIVE_TOKEN_ENCRYPTION_KEY` ต้องใช้ค่าเดิมเพื่ออ่านโทเคน Drive ที่เข้ารหัสไว้
 
 ไฟล์กุญแจ ค่าตั้งค่าจริง และข้อมูลสำรองถูกกันออกจาก Git อย่าอัปโหลดไฟล์เหล่านี้หรือคัดลอกเข้าแชต ตัวแปร `VITE_*` ไม่ควรมีความลับ
 

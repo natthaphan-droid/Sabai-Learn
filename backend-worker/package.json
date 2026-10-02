@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/platform.js",
   "scripts": {
-    "test": "node --test test/platform.test.mjs",
+    "test": "node --test test/platform.test.mjs test/configure.test.mjs",
     "dev": "wrangler dev --ip 127.0.0.1 --port 8787",
     "migrate:local": "wrangler d1 migrations apply sabailearn --local",
     "deploy": "wrangler deploy",

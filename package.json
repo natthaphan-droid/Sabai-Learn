@@ -9,8 +9,8 @@
     "deploy": "npm ci --prefix backend-worker && npm run deploy --prefix backend-worker",
     "deploy:preview": "npm ci --prefix backend-worker && npm run upload --prefix backend-worker",
     "lint": "oxlint",
-    "check": "node --test backend-worker/test/platform.test.mjs",
-    "test": "node --test backend-worker/test/platform.test.mjs",
+    "check": "node --test backend-worker/test/platform.test.mjs backend-worker/test/configure.test.mjs",
+    "test": "node --test backend-worker/test/platform.test.mjs backend-worker/test/configure.test.mjs",
     "dev:api": "node backend-worker/scripts/local.mjs",
     "qa:api": "node backend-worker/test/preview.mjs",
     "preview": "vite preview"
