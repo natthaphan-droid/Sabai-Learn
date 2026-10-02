@@ -47,6 +47,11 @@ export async function handleAdmin(request, env, user, url) {
     return json({ ok: true });
   }
   const classMatch = path.match(/^\/api\/admin\/classes(?:\/([^/]+))?$/);
+  if (classMatch?.[1] && request.method === 'DELETE') {
+    await accessClass(env, user, classMatch[1]);
+    await run(env, 'UPDATE sl_classes SET active=0 WHERE id=?', classMatch[1]);
+    return json({ ok: true });
+  }
   if (classMatch && ['POST','PUT'].includes(request.method)) {
     const data = await readBody(request), id = classMatch[1] || crypto.randomUUID();
     if (classMatch[1]) await accessClass(env, user, id);
