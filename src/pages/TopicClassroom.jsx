@@ -76,7 +76,7 @@ export default function TopicClassroom() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10 max-w-5xl mx-auto">
-      <button 
+      <button
         onClick={() => navigate(`/courses/${id}`)}
         className="flex items-center text-sm font-medium text-textSecondary hover:text-primary transition-colors"
       >
@@ -128,8 +128,8 @@ export default function TopicClassroom() {
             {topicData.videos.map((video, idx) => {
               const isActive = video.id === activeVideoId;
               return (
-                <div 
-                  key={video.id} 
+                <div
+                  key={video.id}
                   onClick={() => setActiveVideoId(video.id)}
                   className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all ${
                     isActive ? 'bg-primary/10 border border-primary/20 shadow-sm' : 'hover:bg-gray-50 border border-transparent'
@@ -157,7 +157,7 @@ export default function TopicClassroom() {
 
       {/* Bottom Section: Documents & Worksheets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        
+
         {/* Left: Documents */}
         <Card className="flex flex-col h-full border-t-4 border-t-blue-500">
           <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-50">
@@ -196,9 +196,9 @@ export default function TopicClassroom() {
                 <p className="text-xs text-orange-600 font-medium">{mockWorksheet.deadline}</p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3 mt-auto">
-              <a 
+              <a
                 href="#"
                 onClick={event => { event.preventDefault(); downloadMaterial({ title: mockWorksheet.title, chapter: courseData.title, content: `ทบทวนหัวข้อ ${topicData.name}\n1. เขียนสรุปแนวคิดสำคัญด้วยคำของตนเอง\n2. ยกตัวอย่างโจทย์ 3 ข้อ พร้อมแสดงวิธีทำ\n3. ตรวจทานคำตอบและเขียนชื่อ ชั้น และเลขที่ให้ครบ` }); }}
                 className="w-full flex items-center justify-center rounded-lg border border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 text-sm font-medium py-2 transition-colors"

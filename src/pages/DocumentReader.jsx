@@ -43,11 +43,11 @@ export default function DocumentReader() {
   return (
     <div className="min-h-screen rounded-2xl bg-[#f0f1eb] p-3 md:p-6 font-sans">
       <div className="max-w-4xl mx-auto">
-        
+
         {/* Toolbar */}
         <div className="bg-white rounded-t-xl p-4 flex items-center justify-between border-b border-gray-200 shadow-sm">
           <div className="flex items-center gap-4">
-            <button 
+            <button
               aria-label="กลับไปหน้าบทเรียน"
               onClick={() => navigate(`/courses/${id}/topic/${topicId}`)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
@@ -78,12 +78,12 @@ export default function DocumentReader() {
                 สรุปเนื้อหา: {topicData.name}
               </h2>
             </div>
-            
+
             <div className="space-y-6 text-gray-700">
               <p className="lead text-lg font-medium text-gray-800">
-                เอกสารฉบับนี้จัดทำขึ้นเพื่อใช้ประกอบการเรียนการสอนในหัวข้อ <strong>{topicData.name}</strong> 
+                เอกสารฉบับนี้จัดทำขึ้นเพื่อใช้ประกอบการเรียนการสอนในหัวข้อ <strong>{topicData.name}</strong>
               </p>
-              
+
               <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 my-8">
                 <h3 className="font-bold text-blue-800 mb-2">จุดประสงค์การเรียนรู้</h3>
                 <ul className="list-disc pl-5 space-y-2 text-blue-900/80">
@@ -108,7 +108,7 @@ export default function DocumentReader() {
               )}
 
               <hr className="my-10" />
-              
+
               <div className="text-center text-sm text-gray-400">
                 <p>หน้า 1 / 1</p>
                 <p>Sabai Learn - Mathematics Platform</p>

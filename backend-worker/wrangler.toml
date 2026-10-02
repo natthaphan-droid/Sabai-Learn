@@ -4,6 +4,7 @@ main = "src/platform.js"
 compatibility_date = "2026-09-18"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
+preview_urls = false
 
 [assets]
 directory = "../dist"

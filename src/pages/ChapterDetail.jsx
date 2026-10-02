@@ -38,7 +38,7 @@ export default function ChapterDetail() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-10 max-w-5xl mx-auto">
-      <button 
+      <button
         onClick={() => navigate('/courses')}
         className="flex items-center text-sm font-medium text-textSecondary hover:text-primary transition-colors"
       >
@@ -61,14 +61,14 @@ export default function ChapterDetail() {
           <BookOpen className="w-6 h-6 text-primary" />
           เลือกหัวข้อย่อยเพื่อเข้าเรียน
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {courseData.topics.map((topic, index) => {
             const videoCount = topic.videos?.length || 0;
-            
+
             return (
-              <Card 
-                key={topic.id} 
+              <Card
+                key={topic.id}
                 className="hover:shadow-card hover:border-primary/30 transition-all cursor-pointer group flex flex-col justify-between"
                 onClick={() => navigate(`/courses/${courseData.id}/topic/${topic.id}`)}
               >
@@ -85,7 +85,7 @@ export default function ChapterDetail() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="pt-4 border-t border-gray-50 flex items-center justify-between mt-auto">
                   <div className="w-full mr-4 space-y-1">
                     <div className="flex justify-between text-[10px] text-textSecondary font-bold">

@@ -7,7 +7,7 @@ export const topicContents = {
       <p>
         ในทางคณิตศาสตร์ <strong>"เซต" (Set)</strong> เป็นคำอนิยามที่ใช้แทนกลุ่ม หมวดหมู่ หรือหมู่ของสิ่งต่างๆ โดยที่เราสามารถระบุได้อย่างชัดเจน (Well-defined) ว่าสิ่งใดอยู่ในกลุ่มและสิ่งใดไม่อยู่ในกลุ่ม
       </p>
-      
+
       <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 my-6">
         <h4 className="font-bold text-blue-900 mb-2">ตัวอย่างของการเป็น "เซต"</h4>
         <ul className="list-disc pl-5 space-y-1">
@@ -15,7 +15,7 @@ export const topicContents = {
           <li>เซตของจำนวนเต็มบวกที่น้อยกว่า 5 <em>(ระบุได้ชัดเจนว่าเป็น 1, 2, 3, 4)</em></li>
           <li>เซตของจังหวัดในประเทศไทยที่มีชื่อขึ้นต้นด้วย "ก"</li>
         </ul>
-        
+
         <h4 className="font-bold text-red-700 mt-4 mb-2">ตัวอย่างที่ "ไม่เป็นเซต" (เพราะไม่สามารถระบุได้ชัดเจน)</h4>
         <ul className="list-disc pl-5 space-y-1 text-red-900/80">
           <li>กลุ่มของคนหล่อ <em>(มาตรฐานความหล่อของแต่ละคนไม่เท่ากัน)</em></li>
@@ -29,7 +29,7 @@ export const topicContents = {
         <p><span className="text-blue-600 font-bold text-lg mr-2">∈</span> แทนคำว่า "เป็นสมาชิกของ"</p>
         <p><span className="text-red-600 font-bold text-lg mr-2">∉</span> แทนคำว่า "ไม่เป็นสมาชิกของ"</p>
       </div>
-      
+
       <p><strong>ตัวอย่าง:</strong> กำหนดให้ A = {"{1, 2, 3, 4}"}</p>
       <ul className="list-disc pl-5">
         <li>1 ∈ A (1 เป็นสมาชิกของ A)</li>
@@ -37,7 +37,7 @@ export const topicContents = {
       </ul>
     </div>
   ),
-  
+
   "m4-b-1-t2": (
     <div className="space-y-4 text-gray-700 leading-relaxed">
       <h3 className="text-xl font-bold text-blue-800 border-b pb-2">การเขียนเซต (Set Notation)</h3>
@@ -47,7 +47,7 @@ export const topicContents = {
         <div>
           <h4 className="font-bold text-lg text-gray-800">1. การเขียนเซตแบบแจกแจงสมาชิก (Tabular Form)</h4>
           <p className="mt-2">
-            เขียนสมาชิกทุกตัวลงในวงเล็บปีกกา <code>{"{ }"}</code> และคั่นสมาชิกแต่ละตัวด้วยเครื่องหมายจุลภาค <code>,</code> 
+            เขียนสมาชิกทุกตัวลงในวงเล็บปีกกา <code>{"{ }"}</code> และคั่นสมาชิกแต่ละตัวด้วยเครื่องหมายจุลภาค <code>,</code>
             (หากมีสมาชิกซ้ำกัน จะนับเป็นเพียงตัวเดียว)
           </p>
           <div className="bg-gray-50 p-4 rounded-lg mt-3 font-mono text-sm">
@@ -70,7 +70,7 @@ export const topicContents = {
       </div>
     </div>
   ),
-  
+
   "m4-b-1-t3": (
     <div className="space-y-4 text-gray-700 leading-relaxed">
       <h3 className="text-xl font-bold text-blue-800 border-b pb-2">ชนิดของเซต</h3>
@@ -99,7 +99,7 @@ export const topicContents = {
       <div className="bg-orange-50 border border-orange-100 p-5 rounded-xl shadow-sm mt-4">
         <h4 className="font-bold text-orange-700 text-lg mb-2">3. เซตว่าง (Empty Set)</h4>
         <p className="text-sm mb-2">
-          เซตที่ไม่มีสมาชิกเลย (ถือเป็นเซตจำกัดชนิดหนึ่งที่มีสมาชิก 0 ตัว) 
+          เซตที่ไม่มีสมาชิกเลย (ถือเป็นเซตจำกัดชนิดหนึ่งที่มีสมาชิก 0 ตัว)
           ใช้สัญลักษณ์ <strong>∅</strong> หรือ <strong>{"{ }"}</strong>
         </p>
         <div className="bg-white/50 p-3 rounded text-sm font-mono text-orange-900">

@@ -68,7 +68,7 @@ export default function Formulas() {
         </div>
       </div>
 
-      <TabSwitcher 
+      <TabSwitcher
         activeType={activeType}
         onTypeChange={setActiveType}
       />
