@@ -9,8 +9,8 @@
     "deploy": "npm ci --prefix backend-worker && npm run deploy --prefix backend-worker",
     "deploy:preview": "npm ci --prefix backend-worker && npm run upload --prefix backend-worker",
     "lint": "oxlint",
-    "check": "node --test backend-worker/test/platform.test.mjs backend-worker/test/configure.test.mjs",
-    "test": "node --test backend-worker/test/platform.test.mjs backend-worker/test/configure.test.mjs",
+    "check": "node --test backend-worker/test/platform.test.mjs backend-worker/test/configure.test.mjs backend-worker/test/roster.test.mjs",
+    "test": "node --test backend-worker/test/platform.test.mjs backend-worker/test/configure.test.mjs backend-worker/test/roster.test.mjs",
     "dev:api": "node backend-worker/scripts/local.mjs",
     "qa:api": "node backend-worker/test/preview.mjs",
     "preview": "vite preview"
@@ -22,7 +22,8 @@
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3",
     "recharts": "^3.10.1",
-    "tailwind-merge": "^3.7.0"
+    "tailwind-merge": "^3.7.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

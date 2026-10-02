@@ -12,11 +12,11 @@ try {
   const target = new URL((await input.question('URL เว็บ (เช่น http://127.0.0.1:5173): ')).trim());
   if (target.username || target.password || target.pathname !== '/' || target.search || target.hash || !(target.protocol === 'https:' || (target.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(target.hostname)))) throw new Error('ใช้ URL หน้าแรกของเว็บ HTTPS หรือเว็บในเครื่อง');
   const username = await input.question('ชื่อเข้าใช้ครู: '), name = await input.question('ชื่อครู: ');
-  stdout.write('รหัสผ่านเริ่มต้น (10–128 ตัวอักษร จะไม่แสดงบนจอ): ');
+  stdout.write('รหัสผ่านเริ่มต้น (8–128 ตัวอักษร จะไม่แสดงบนจอ): ');
   hidden = true;
   const password = await input.question('');
   hidden = false; stdout.write('\n');
-  if (password.length < 10 || password.length > 128) throw new Error('รหัสผ่านต้องมี 10–128 ตัวอักษร');
+  if (password.length < 8 || password.length > 128) throw new Error('รหัสผ่านต้องมี 8–128 ตัวอักษร');
   const response = await fetch(`${target.origin}/api/setup`, { method: 'POST', headers: { Origin: target.origin, 'Content-Type': 'application/json', 'X-Setup-Key': env.BOOTSTRAP_SECRET }, body: JSON.stringify({ username, name, password }) });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error);

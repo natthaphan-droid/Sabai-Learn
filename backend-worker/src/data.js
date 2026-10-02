@@ -67,7 +67,7 @@ export async function newAccount(env, data, role) {
     const identity = await createIdentity(env, user, password);
     created = true;
     requireThat(identity.localId === id, 'บริการบัญชีส่งข้อมูลไม่ตรงกัน', 503);
-    await run(env, 'UPDATE sl_users SET active=1 WHERE id=?', id);
+    await env.DB.batch([sql(env, 'UPDATE sl_users SET active=1 WHERE id=?', id), ...(role === 'student' ? data.classIds || [] : []).map(classId => sql(env, 'INSERT INTO sl_enrollments(class_id,user_id,active) VALUES(?,?,1)', classId, id))]);
   } catch (error) {
     if (created) { try { await deleteIdentity(env, id); } catch { /* Without its D1 record this identity cannot enter the classroom. */ } }
     await run(env, 'DELETE FROM sl_users WHERE id=?', id);

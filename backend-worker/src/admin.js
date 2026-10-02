@@ -1,4 +1,4 @@
-import { HttpError, requireThat, textValue, passwordValue, numberValue, dateValue, dueValue, videoValue, contactValue } from './domain.js';
+import { HttpError, requireThat, textValue, usernameValue, passwordValue, numberValue, dateValue, dueValue, videoValue, contactValue } from './domain.js';
 import { sql, first, run, json, readBody, accessClass, accessLesson, accessItem, enrolledStudent, newAccount, assignClasses, adminOverview, saveSetting, nowISO } from './data.js';
 import { updateIdentity } from './integrations.js';
 import { handleDrive } from './files.js';
@@ -6,12 +6,25 @@ export async function handleAdmin(request, env, user, url) {
   const path = url.pathname;
   if (path.startsWith('/api/admin/drive/')) return handleDrive(request, env, user, url);
   if (path === '/api/admin/overview' && request.method === 'GET') return json(await adminOverview(env));
+  if (path === '/api/admin/students/import' && request.method === 'POST') {
+    const data = await readBody(request), username = usernameValue(data.username), name = textValue(data.name, 'ชื่อนักเรียน', 150);
+    const classroom = await accessClass(env, user, data.classId);
+    requireThat(classroom.active, 'ห้องเรียนนี้ปิดอยู่');
+    const existing = await first(env, 'SELECT * FROM sl_users WHERE username=?', username);
+    if (existing) {
+      requireThat(existing.role === 'student' && existing.active, 'บัญชีนี้ไม่ใช่นักเรียนที่เปิดใช้งาน', 409);
+      requireThat(existing.name.replace(/\s+/g, '') === name.replace(/\s+/g, ''), 'รหัสนักเรียนนี้มีชื่อไม่ตรงกับบัญชีเดิม กรุณาตรวจรายชื่อ', 409);
+      await run(env, 'INSERT INTO sl_enrollments(class_id,user_id,active) VALUES(?,?,1) ON CONFLICT(class_id,user_id) DO UPDATE SET active=1', data.classId, existing.id);
+      return json({ created: false });
+    }
+    await newAccount(env, { username, name, password: data.password, classIds: [data.classId] }, 'student');
+    return json({ created: true }, 201);
+  }
   if (path === '/api/admin/students' && request.method === 'POST') {
     const data = await readBody(request);
     requireThat(Array.isArray(data.classIds) && data.classIds.length <= 50 && data.classIds.every(id => typeof id === 'string'), 'กรุณาเลือกห้องเรียนไม่เกิน 50 ห้อง');
     for (const id of data.classIds) await accessClass(env, user, id);
-    const student = await newAccount(env, data, 'student');
-    await assignClasses(env, student.id, data.classIds);
+    const student = await newAccount(env, { ...data, classIds: [...new Set(data.classIds)] }, 'student');
     return json({ student }, 201);
   }
   const studentMatch = path.match(/^\/api\/admin\/students\/([^/]+)(?:\/(password))?$/);

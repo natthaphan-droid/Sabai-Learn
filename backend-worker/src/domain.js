@@ -9,7 +9,7 @@ export function textValue(value, label, max = 200, optional = false) {
   return result;
 }
 export function passwordValue(value) {
-  requireThat(typeof value === 'string' && value.length >= 10 && value.length <= 128, 'รหัสผ่านต้องมี 10–128 ตัวอักษร');
+  requireThat(typeof value === 'string' && value.length >= 8 && value.length <= 128, 'รหัสผ่านต้องมี 8–128 ตัวอักษร');
   return value;
 }
 export function usernameValue(value) {
