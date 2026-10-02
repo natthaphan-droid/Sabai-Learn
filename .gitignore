@@ -20,6 +20,7 @@ artifacts/
 !.env.example
 .wrangler/
 backend-worker/*-????????????.json
+backend-worker/*firebase-adminsdk*.json
 backend-worker/dump.bin
 backend-worker/backups/
 backend-worker/secrets/
