@@ -1,6 +1,8 @@
 # เตรียม Sabai Learn ให้เปิดใช้งานจริง
 
-เว็บและระบบห้องเรียนเขียนไว้แล้ว แต่ยังไม่ได้เชื่อมบัญชี Firebase, Google OAuth และ Cloudflare ของโรงเรียน ขั้นตอนนี้ต้องทำด้วยบัญชีของครูหรือผู้ดูแลเอง ไม่ต้องส่งรหัสผ่านหรือไฟล์กุญแจในแชต
+เว็บเผยแพร่แล้วที่ [sabai-learn.natthaphan.workers.dev](https://sabai-learn.natthaphan.workers.dev) พร้อมฐานข้อมูล D1 และการเผยแพร่จาก GitHub สำรองฐานข้อมูลเดิมและเพิ่มตารางห้องเรียนแล้ว
+
+สิ่งที่ยังต้องเตรียมคือ Firebase, Google OAuth และบัญชีครู ทำขั้นตอน 1–3 ด้วยบัญชีครูหรือผู้ดูแล จากนั้นส่งค่าตั้งค่าขึ้น Cloudflare ด้วย `secret bulk` และสร้างครูตามขั้นตอน 5 ไม่ต้องส่งรหัสผ่านหรือไฟล์กุญแจในแชต ระหว่างนี้หน้าเข้าสู่ระบบจะแจ้งว่ากำลังเตรียมบัญชีผู้ใช้
 
 ## 1. สร้าง Firebase สำหรับบัญชีผู้ใช้
 
@@ -28,10 +30,10 @@
    http://127.0.0.1:5173/api/admin/drive/callback
    ```
 
-7. บันทึก **Client ID** และ **Client secret** ไว้ใช้ในขั้นตอน 3 เมื่อได้ URL ออนไลน์แล้ว ให้เพิ่ม URI อีกอัน:
+7. บันทึก **Client ID** และ **Client secret** ไว้ใช้ในขั้นตอน 3 เพิ่ม URI ของเว็บออนไลน์อีกอัน:
 
    ```text
-   https://ชื่อ-worker.ชื่อบัญชี.workers.dev/api/admin/drive/callback
+   https://sabai-learn.natthaphan.workers.dev/api/admin/drive/callback
    ```
 
 8. ก่อนใช้จริง เปลี่ยนสถานะ OAuth จาก Testing เป็น **In production** ตามขั้นตอนที่ Console แสดง และเพิ่ม URL หน้าแรกกับ `/privacy` ของเว็บ Google ระบุว่า refresh token ของแอป External ใน Testing ที่ขอสิทธิ์ Drive จะหมดอายุใน 7 วัน จึงเหมาะกับการทดลองระยะสั้นเท่านั้น ([อายุโทเคน](https://developers.google.com/identity/protocols/oauth2#expiration)) หาก Console ขอข้อมูลเพิ่มเติม ให้ทำให้ครบก่อนเปิดใช้งาน
@@ -111,7 +113,7 @@ npm run build
 Set-Location backend-worker
 $env:WRANGLER_LOG_PATH = Join-Path $PWD '.wrangler/logs'
 $env:WRANGLER_SEND_METRICS = 'false'
-npx wrangler login
+npx wrangler login --scopes account:read user:read workers_scripts:write d1:write
 npx wrangler whoami
 npx wrangler d1 list
 ```
